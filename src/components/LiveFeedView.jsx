@@ -32,17 +32,24 @@ export default function LiveFeedView({ onSelectFelon }) {
   const activeCamData = cameras.find(c => c.id === activeCam) || cameras[0];
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#06080c] text-slate-100 p-3 gap-3 overflow-y-auto custom-scrollbar font-sans select-none">
+    <div className="w-full h-full flex flex-col bg-[#06080c] text-slate-100 p-4 gap-4 overflow-y-auto custom-scrollbar font-sans select-none">
       
       {/* Top Header Control Bar */}
-      <div className="w-full p-3.5 rounded-xl bg-[#0b0e14] border border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-lg font-mono text-xs">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-cyan-950 border border-cyan-500/50 text-cyan-400">
+      <div className="w-full p-4 rounded-2xl bg-gradient-to-r from-[#0b0e17] via-[#090c14] to-[#0b0e17] border border-slate-800/90 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-md font-mono text-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 rounded-xl bg-cyan-950/80 border border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
             <Video className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-extrabold text-white">LIVE SURVEILLANCE & BIOMETRIC CONTROL COMMAND</h2>
-            <p className="text-xs text-slate-400">4 Synchronized Optical Nodes • Real-Time ANPR & Facial AI Active</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-black tracking-wide text-white font-mono text-glow-cyan">
+                LIVE SURVEILLANCE & BIOMETRIC COMMAND
+              </h2>
+              <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-[10px] font-bold text-cyan-300">
+                ACTIVE
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">4 Synchronized Optical Nodes • Real-Time ANPR & Facial AI Active</p>
           </div>
         </div>
 
@@ -53,10 +60,10 @@ export default function LiveFeedView({ onSelectFelon }) {
               setIsThermal(!isThermal);
               playClick();
             }}
-            className={`px-3 py-1.5 rounded-lg border font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl border font-bold transition-all ${
               isThermal 
-                ? 'bg-amber-950 border-amber-500 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.4)]' 
-                : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white'
+                ? 'bg-amber-950/90 border-amber-500 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]' 
+                : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
             }`}
           >
             {isThermal ? '🔥 THERMAL VISION ACTIVE' : '👁️ STANDARD OPTICS'}

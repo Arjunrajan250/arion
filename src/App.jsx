@@ -16,7 +16,7 @@ import AudioInterceptModal from './components/AudioInterceptModal';
 import DispatchSimulatorModal from './components/DispatchSimulatorModal';
 import CyberTerminal from './components/CyberTerminal';
 import DossierPdfModal from './components/DossierPdfModal';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, MapPin, Activity, ShieldCheck } from 'lucide-react';
 import { toggleMute, isMuted } from './utils/soundEngine';
 import { initSpeechRecognition, speakText } from './utils/voiceAssistant';
 
@@ -146,26 +146,51 @@ export default function App() {
         />
 
         {/* Subheader / Status Bar Row */}
-        <div className="w-full px-6 py-2 flex items-center justify-between z-20 shrink-0 border-b border-slate-800/80 gap-6 overflow-hidden bg-[#07090c]">
+        <div className="w-full px-6 sm:px-8 py-2.5 flex items-center justify-between z-20 shrink-0 border-b border-cyan-500/15 gap-4 sm:gap-6 overflow-hidden bg-[#04060b]/90 backdrop-blur-md text-xs sm:text-sm font-mono min-h-[48px]">
           
-          {/* Location Title & Clock */}
-          <div className="flex items-baseline gap-3 shrink-0">
-            <h1 className="text-xl sm:text-2xl font-black italic tracking-tight text-white font-sans whitespace-nowrap">
-              Gotham HJ 66,
-            </h1>
-            <span className="text-xs sm:text-sm font-mono font-semibold text-slate-300 whitespace-nowrap">
-              Tue, Mar 25 2025, 09:56:23 PM
-            </span>
+          {/* Location Title, Status & Telemetry */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Sector Badge */}
+            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-sm">
+              <MapPin className="w-4 h-4 text-cyan-400 animate-pulse" />
+              <span className="text-xs sm:text-sm font-black tracking-wider text-white">
+                GOTHAM SECTOR HJ-66
+              </span>
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/50 text-[10px] font-bold text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                SEC-ONLINE
+              </span>
+            </div>
+
+            {/* Live System Time */}
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-300 text-xs">
+              <span className="text-cyan-400 font-bold tracking-wider">SYS.TIME:</span>
+              <span className="text-slate-200">Tue, Mar 25 2025 • 09:56:23 PM</span>
+            </div>
+
+            {/* Telemetry Chips */}
+            <div className="hidden lg:flex items-center gap-2 text-xs font-bold text-slate-400">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                DEFCON 2
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400">
+                SAT-LINK 99.8%
+              </span>
+            </div>
           </div>
 
           {/* Warning Notification Banner */}
-          <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-red-950/80 border border-red-700/80 text-xs sm:text-sm font-sans font-medium text-red-100 shadow-lg shrink min-w-0 overflow-hidden">
-            <span className="truncate text-xs sm:text-sm font-medium">
+          <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-950/80 via-slate-900 to-slate-900 border border-red-700/50 text-xs font-sans text-red-100 shadow-[0_0_15px_rgba(239,68,68,0.2)] shrink min-w-0 overflow-hidden">
+            <div className="p-1 rounded-md bg-red-600 text-white font-extrabold shrink-0 shadow-sm animate-pulse">
+              <AlertTriangle className="w-3.5 h-3.5" />
+            </div>
+            <span className="px-2 py-0.5 rounded bg-red-900/80 text-red-300 font-mono font-bold text-[10px] tracking-wider shrink-0 border border-red-700/60 uppercase">
+              ROUTE LOG
+            </span>
+            <span className="truncate text-xs font-medium text-slate-200">
               Individuals followed designated routes, and no suspicious activities or unauthorized entries were observed.
             </span>
-            <div className="p-1 rounded bg-red-600 text-white font-extrabold shrink-0 shadow-sm">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
           </div>
 
         </div>

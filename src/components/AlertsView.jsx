@@ -54,44 +54,44 @@ export default function AlertsView() {
     <div className="w-full h-full flex flex-col bg-[#06080c] text-slate-100 p-4 gap-4 overflow-y-auto custom-scrollbar font-sans">
       
       {/* Top Threat Telemetry Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0 font-mono">
-        <div className="p-3.5 rounded-xl bg-[#0b0e14] border border-red-900/60 flex items-center justify-between shadow-lg">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 shrink-0 font-mono">
+        <div className="p-4 rounded-2xl bg-[#0b0e17]/90 border border-red-900/60 flex items-center justify-between shadow-2xl backdrop-blur-md">
           <div>
-            <div className="text-[10px] text-slate-400 font-bold uppercase">CRITICAL INCIDENTS</div>
-            <div className="text-2xl font-black text-red-400 mt-0.5">14 ACTIVE</div>
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">CRITICAL INCIDENTS</div>
+            <div className="text-2xl font-black text-red-400 mt-0.5 text-glow-red">14 ACTIVE</div>
           </div>
-          <div className="p-2 rounded-lg bg-red-950/80 border border-red-700 text-red-400 animate-pulse">
+          <div className="p-2.5 rounded-xl bg-red-950/80 border border-red-700 text-red-400 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.4)]">
             <ShieldAlert className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#0b0e14] border border-slate-800 flex items-center justify-between shadow-lg">
+        <div className="p-4 rounded-2xl bg-[#0b0e17]/90 border border-slate-800/90 flex items-center justify-between shadow-2xl backdrop-blur-md">
           <div>
-            <div className="text-[10px] text-slate-400 font-bold uppercase">RESPONSE PROTOCOL</div>
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">RESPONSE PROTOCOL</div>
             <div className="text-2xl font-black text-emerald-400 mt-0.5">LEVEL 4 LOCKDOWN</div>
           </div>
-          <div className="p-2 rounded-lg bg-emerald-950/80 border border-emerald-700 text-emerald-400">
+          <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-700 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
             <ShieldCheck className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#0b0e14] border border-slate-800 flex items-center justify-between shadow-lg">
+        <div className="p-4 rounded-2xl bg-[#0b0e17]/90 border border-slate-800/90 flex items-center justify-between shadow-2xl backdrop-blur-md">
           <div>
-            <div className="text-[10px] text-slate-400 font-bold uppercase">AVG DISPATCH ETA</div>
-            <div className="text-2xl font-black text-cyan-400 mt-0.5">1.4 MINS</div>
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">AVG DISPATCH ETA</div>
+            <div className="text-2xl font-black text-cyan-400 mt-0.5 text-glow-cyan">1.4 MINS</div>
           </div>
-          <div className="p-2 rounded-lg bg-cyan-950/80 border border-cyan-700 text-cyan-400">
+          <div className="p-2.5 rounded-xl bg-cyan-950/80 border border-cyan-700 text-cyan-400 shadow-[0_0_12px_rgba(0,242,254,0.3)]">
             <Zap className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#0b0e14] border border-slate-800 flex items-center justify-between shadow-lg">
+        <div className="p-4 rounded-2xl bg-[#0b0e17]/90 border border-slate-800/90 flex items-center justify-between shadow-2xl backdrop-blur-md">
           <div>
-            <div className="text-[10px] text-slate-400 font-bold uppercase">SIREN BROADCAST</div>
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">SIREN BROADCAST</div>
             <button 
               onClick={handleToggleSiren}
-              className={`mt-1 px-2.5 py-1 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
-                isSirenActive ? 'bg-red-600 text-white animate-bounce' : 'bg-slate-800 text-slate-300 hover:text-white'
+              className={`mt-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                isSirenActive ? 'bg-red-600 text-white animate-bounce shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'bg-slate-900 border border-slate-700 text-slate-300 hover:text-white'
               }`}
             >
               {isSirenActive ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
@@ -103,34 +103,34 @@ export default function AlertsView() {
       </div>
 
       {/* Sector Threat Density Heatmap Summary Bar */}
-      <div className="p-3.5 rounded-xl bg-[#0b0e14] border border-slate-800 flex flex-wrap items-center justify-between gap-4 font-mono text-xs shrink-0 shadow-lg">
+      <div className="p-3.5 rounded-2xl bg-[#0b0e17]/90 border border-slate-800/90 flex flex-wrap items-center justify-between gap-4 font-mono text-xs shrink-0 shadow-2xl backdrop-blur-md">
         <div className="flex items-center gap-2 text-cyan-400 font-extrabold">
-          <Activity className="w-4 h-4" />
+          <Activity className="w-4 h-4 animate-pulse" />
           <span>SECTOR RISK HEATMAP SUMMARY:</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {[
-            { sector: 'Sector 1', risk: '22%', color: 'bg-emerald-950 text-emerald-400 border-emerald-800' },
-            { sector: 'Sector 2', risk: '64%', color: 'bg-amber-950 text-amber-400 border-amber-800' },
-            { sector: 'Sector 3', risk: '48%', color: 'bg-cyan-950 text-cyan-400 border-cyan-800' },
-            { sector: 'Sector 4', risk: '98%', color: 'bg-red-950 text-red-400 border-red-700 animate-pulse' },
+            { sector: 'Sector 1', risk: '22%', color: 'bg-emerald-950/80 text-emerald-400 border-emerald-800' },
+            { sector: 'Sector 2', risk: '64%', color: 'bg-amber-950/80 text-amber-400 border-amber-800' },
+            { sector: 'Sector 3', risk: '48%', color: 'bg-cyan-950/80 text-cyan-400 border-cyan-800' },
+            { sector: 'Sector 4', risk: '98%', color: 'bg-red-950/80 text-red-400 border-red-700 animate-pulse' },
           ].map((s) => (
-            <div key={s.sector} className={`px-3 py-1 rounded-lg border font-bold ${s.color}`}>
-              {s.sector}: <span className="font-extrabold">{s.risk} DENSITY</span>
+            <div key={s.sector} className={`px-3 py-1 rounded-xl border font-bold ${s.color}`}>
+              {s.sector}: <span className="font-black">{s.risk} DENSITY</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Header Bar: Filter & Search */}
-      <div className="w-full p-3.5 rounded-xl bg-[#0b0e14] border border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-lg font-mono">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-red-950/80 border border-red-700 text-red-400">
+      <div className="w-full p-4 rounded-2xl bg-[#0b0e17]/90 border border-slate-800/90 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-md font-mono">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 rounded-xl bg-red-950/80 border border-red-700 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-extrabold text-white">INCIDENT ESCALATION MATRIX</h2>
-            <p className="text-xs text-slate-400">Real-Time Threat Logs & Tactical Response Actions</p>
+            <h2 className="text-base sm:text-lg font-black tracking-wide text-white font-mono text-glow-red">INCIDENT ESCALATION MATRIX</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Real-Time Threat Logs & Tactical Response Actions</p>
           </div>
         </div>
 

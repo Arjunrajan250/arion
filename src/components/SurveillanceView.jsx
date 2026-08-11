@@ -21,24 +21,31 @@ export default function SurveillanceView({ onSelectFelon }) {
   const displayedFeeds = cctvFeeds.slice(0, gridSize);
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#07090d] text-slate-100 p-4 gap-4 overflow-y-auto custom-scrollbar font-sans">
+    <div className="w-full h-full flex flex-col bg-[#06080c] text-slate-100 p-5 sm:p-6 gap-5 overflow-y-auto custom-scrollbar font-sans">
       
       {/* Surveillance Control Header */}
-      <div className="w-full p-4 rounded-xl bg-[#0b0e14] border border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-lg font-mono">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-cyan-400">
-            <Camera className="w-5 h-5" />
+      <div className="w-full p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#0b0e17] via-[#090c14] to-[#0b0e17] border border-slate-800/90 flex flex-wrap items-center justify-between gap-5 shrink-0 shadow-2xl backdrop-blur-md font-mono">
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-cyan-950/80 border border-cyan-500/50 text-cyan-400 shadow-[0_0_18px_rgba(0,242,254,0.35)]">
+            <Camera className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-extrabold text-white">LIVE SURVEILLANCE CCTV MATRIX</h2>
-            <p className="text-xs text-slate-400">32 Active High-Definition Feeds Synchronized • AI Object Identification Active</p>
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-lg sm:text-xl font-black tracking-wide text-white font-mono text-glow-cyan">
+                LIVE SURVEILLANCE CCTV MATRIX
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-xs font-bold text-cyan-300">
+                SYNCHRONIZED
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">32 Active High-Definition Feeds Synchronized • AI Object Identification Active</p>
           </div>
         </div>
 
         {/* Sector Filters & Grid Size Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Sector Buttons */}
-          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+          <div className="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 text-xs font-mono">
             {['ALL', 'NORTH', 'MIDTOWN', 'DOCKYARD'].map((sec) => (
               <button
                 key={sec}
@@ -46,8 +53,8 @@ export default function SurveillanceView({ onSelectFelon }) {
                   setActiveSector(sec);
                   playClick();
                 }}
-                className={`px-3 py-1 rounded-md font-bold transition-all ${
-                  activeSector === sec ? 'bg-cyan-500 text-black shadow-sm' : 'text-slate-400 hover:text-white'
+                className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+                  activeSector === sec ? 'bg-cyan-500 text-slate-950 shadow-[0_0_14px_rgba(0,242,254,0.45)]' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 {sec}
@@ -56,14 +63,14 @@ export default function SurveillanceView({ onSelectFelon }) {
           </div>
 
           {/* Grid Size Switcher */}
-          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+          <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
             <button
               onClick={() => {
                 setGridSize(4);
                 playBeep();
               }}
-              className={`p-1.5 rounded flex items-center gap-1 font-bold ${
-                gridSize === 4 ? 'bg-cyan-500 text-black' : 'text-slate-400 hover:text-white'
+              className={`p-1.5 rounded-lg flex items-center gap-1 font-bold transition-all ${
+                gridSize === 4 ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(0,242,254,0.4)]' : 'text-slate-400 hover:text-white'
               }`}
               title="2x2 Grid View"
             >
@@ -75,8 +82,8 @@ export default function SurveillanceView({ onSelectFelon }) {
                 setGridSize(9);
                 playBeep();
               }}
-              className={`p-1.5 rounded flex items-center gap-1 font-bold ${
-                gridSize === 9 ? 'bg-cyan-500 text-black' : 'text-slate-400 hover:text-white'
+              className={`p-1.5 rounded-lg flex items-center gap-1 font-bold transition-all ${
+                gridSize === 9 ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(0,242,254,0.4)]' : 'text-slate-400 hover:text-white'
               }`}
               title="3x3 Grid View"
             >
@@ -92,49 +99,49 @@ export default function SurveillanceView({ onSelectFelon }) {
         {displayedFeeds.map((feed) => (
           <div 
             key={feed.id}
-            className="relative rounded-xl border border-slate-800 bg-[#090c12] overflow-hidden group hover:border-cyan-500/60 transition-all shadow-xl flex flex-col"
+            className="relative rounded-2xl border border-slate-800/90 bg-[#090c14]/90 overflow-hidden group hover:border-cyan-500/70 transition-all duration-300 shadow-2xl flex flex-col hover:shadow-[0_0_25px_rgba(0,242,254,0.15)]"
           >
             {/* Feed Image Container */}
-            <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-black">
+            <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-slate-950 select-none">
               <img 
                 src={feed.image} 
                 alt={feed.location}
-                className="w-full h-full object-cover opacity-75 group-hover:opacity-90 transition-opacity"
+                className="w-full h-full object-cover opacity-80 group-hover:opacity-95 transition-all duration-300 group-hover:scale-105"
               />
 
               {/* Bounding Box AI Tracking Overlay */}
-              <div className="absolute top-1/4 left-1/3 w-28 h-28 border-2 border-red-500/80 rounded flex flex-col justify-between p-1 animate-pulse">
-                <span className="text-[9px] font-mono bg-red-600 text-white font-bold px-1 py-0.5 rounded self-start">
+              <div className="absolute top-1/4 left-1/3 w-28 h-28 border-2 border-red-500/90 rounded-lg flex flex-col justify-between p-1 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                <span className="text-[9px] font-mono bg-red-600 text-white font-extrabold px-1.5 py-0.5 rounded self-start shadow-sm">
                   AI TARGET {feed.confidence}%
                 </span>
-                <span className="text-[9px] font-mono text-red-300 bg-black/80 px-1 rounded self-end">
+                <span className="text-[9px] font-mono text-red-200 bg-slate-950/90 border border-red-500/40 px-1.5 py-0.5 rounded self-end font-bold">
                   {feed.target}
                 </span>
               </div>
 
               {/* Live Ticker & Camera Label */}
-              <div className="absolute top-2 left-2 px-2 py-1 rounded bg-black/80 border border-slate-800 font-mono text-[10px] font-bold text-white flex items-center gap-1.5">
+              <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-slate-950/90 border border-slate-800 font-mono text-[10px] font-bold text-white flex items-center gap-1.5 backdrop-blur-md shadow-md">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
                 <span>REC • {feed.id.toUpperCase()}</span>
               </div>
 
-              <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/80 border border-slate-800 font-mono text-[10px] font-bold text-cyan-400">
+              <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-slate-950/90 border border-slate-800 font-mono text-[10px] font-bold text-cyan-400 backdrop-blur-md shadow-md">
                 {feed.location}
               </div>
             </div>
 
             {/* Footer Control Bar */}
-            <div className="p-3 bg-[#0d1017] border-t border-slate-800 flex items-center justify-between font-mono text-xs">
+            <div className="p-3.5 bg-[#0b0e17] border-t border-slate-800/90 flex items-center justify-between font-mono text-xs">
               <div>
-                <div className="text-white font-bold">{feed.target}</div>
-                <div className="text-[10px] text-slate-400">Confidence: <span className="text-cyan-400 font-bold">{feed.confidence}%</span></div>
+                <div className="text-white font-bold text-xs">{feed.target}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Confidence Match: <span className="text-cyan-400 font-extrabold">{feed.confidence}%</span></div>
               </div>
               <button 
                 onClick={() => {
                   if (onSelectFelon) onSelectFelon({ name: feed.target });
                   playClick();
                 }}
-                className="px-2.5 py-1 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-bold text-xs hover:bg-cyan-500 hover:text-black transition-all"
+                className="px-3 py-1.5 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold text-xs hover:bg-cyan-500 hover:text-slate-950 hover:shadow-[0_0_15px_rgba(0,242,254,0.4)] transition-all"
               >
                 Inspect Target
               </button>

@@ -88,25 +88,25 @@ export default function MetricsOverview() {
   ];
 
   return (
-    <div className="w-[320px] h-full flex flex-col gap-2.5 shrink-0 overflow-y-auto custom-scrollbar select-none bg-[#080a0d] p-3 rounded-2xl border border-slate-800/80 shadow-2xl min-h-0 font-sans">
+    <div className="w-[330px] h-full flex flex-col gap-3 shrink-0 overflow-y-auto custom-scrollbar select-none bg-[#07090e]/90 p-3.5 rounded-2xl border border-slate-800/80 shadow-2xl min-h-0 font-sans backdrop-blur-md">
       
       {/* 2x3 Expanded Metrics Cards Grid */}
-      <div className="grid grid-cols-2 gap-2 shrink-0 font-mono">
+      <div className="grid grid-cols-2 gap-2.5 shrink-0 font-mono">
         {metricsData.map((m, idx) => {
           const IconComp = m.icon;
           return (
             <div 
               key={idx} 
-              className="bg-[#0f1115] border border-slate-800/80 rounded-xl p-2 flex flex-col items-center justify-center text-center shadow-inner hover:border-slate-700 transition-all cursor-pointer"
+              className="bg-[#0b0e16] border border-slate-800/90 rounded-xl p-2.5 flex flex-col items-center justify-center text-center shadow-md hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(0,242,254,0.15)] transition-all duration-200 cursor-pointer group"
               onClick={() => playClick()}
             >
-              <div className={`mb-0.5 p-1 rounded-full ${m.bg}`} style={{ color: m.color }}>
+              <div className={`mb-1 p-1.5 rounded-xl ${m.bg} group-hover:scale-110 transition-transform`} style={{ color: m.color }}>
                 <IconComp className="w-3.5 h-3.5 opacity-90" />
               </div>
-              <span className="text-[9px] text-slate-400 font-sans tracking-tight leading-tight">
+              <span className="text-[9.5px] text-slate-400 font-sans font-medium tracking-tight leading-tight">
                 {m.label}
               </span>
-              <span className="text-base font-extrabold font-mono tracking-tight mt-0.5" style={{ color: m.color }}>
+              <span className="text-base font-black font-mono tracking-tight mt-0.5" style={{ color: m.color }}>
                 {m.value}
               </span>
             </div>
@@ -115,75 +115,78 @@ export default function MetricsOverview() {
       </div>
 
       {/* System Telemetry & Signal Status Bar */}
-      <div className="p-2 rounded-xl bg-[#0b0e14] border border-slate-800/80 flex flex-col gap-1.5 shrink-0 shadow-inner font-mono text-[10px]">
-        <div className="flex items-center justify-between text-slate-400 font-bold border-b border-slate-800/80 pb-1">
+      <div className="p-2.5 rounded-xl bg-[#0b0e16] border border-slate-800/90 flex flex-col gap-2 shrink-0 shadow-md font-mono text-[10px]">
+        <div className="flex items-center justify-between text-slate-400 font-bold border-b border-slate-800/80 pb-1.5">
           <div className="flex items-center gap-1.5 text-cyan-400">
-            <Activity className="w-3.5 h-3.5" />
+            <Activity className="w-3.5 h-3.5 animate-pulse" />
             <span>TELEMETRY MATRIX</span>
           </div>
-          <span className="text-emerald-400 font-extrabold">ONLINE</span>
+          <span className="text-emerald-400 font-extrabold flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            ONLINE
+          </span>
         </div>
 
-        <div className="space-y-1 pt-0.5">
+        <div className="space-y-1.5 pt-0.5">
           <div className="flex justify-between text-slate-300">
             <span>CPU Processing Load:</span>
             <span className="font-bold text-cyan-400">42% • 12 Cores</span>
           </div>
-          <div className="w-full h-1.5 rounded-full bg-slate-900 overflow-hidden border border-slate-800">
-            <div className="h-full bg-cyan-400 rounded-full w-[42%]" />
+          <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+            <div className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full w-[42%]" />
           </div>
 
           <div className="flex justify-between text-slate-300">
             <span>Network Bandwidth:</span>
             <span className="font-bold text-emerald-400">1.44 Gbps</span>
           </div>
-          <div className="w-full h-1.5 rounded-full bg-slate-900 overflow-hidden border border-slate-800">
-            <div className="h-full bg-emerald-400 rounded-full w-[68%]" />
+          <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+            <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full w-[68%]" />
           </div>
         </div>
       </div>
 
       {/* Live Radio Intercepts Log */}
-      <div className="p-2.5 rounded-xl bg-[#0b0e14] border border-slate-800/80 flex flex-col gap-1.5 shrink-0 shadow-inner font-mono text-[10px]">
-        <div className="flex items-center justify-between text-amber-400 font-bold border-b border-slate-800/80 pb-1">
+      <div className="p-2.5 rounded-xl bg-[#0b0e16] border border-slate-800/90 flex flex-col gap-2 shrink-0 shadow-md font-mono text-[10px]">
+        <div className="flex items-center justify-between text-amber-400 font-bold border-b border-slate-800/80 pb-1.5">
           <div className="flex items-center gap-1.5">
-            <Radio className="w-3.5 h-3.5" />
+            <Radio className="w-3.5 h-3.5 text-amber-400" />
             <span>RADIO INTERCEPTS</span>
           </div>
-          <span className="text-amber-500 font-bold animate-pulse">LIVE FEED</span>
+          <span className="text-amber-400 font-bold animate-pulse text-[9px] bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800">LIVE FEED</span>
         </div>
 
         <div className="space-y-1.5 max-h-28 overflow-y-auto pr-1 custom-scrollbar">
           {radioIntercepts.map((r, i) => (
-            <div key={i} className="p-1.5 rounded bg-slate-900/80 border border-slate-800 flex flex-col gap-0.5">
+            <div key={i} className="p-2 rounded-lg bg-slate-900/90 border border-slate-800/80 flex flex-col gap-1 hover:border-amber-500/40 transition-colors">
               <div className="flex justify-between font-bold text-slate-300">
-                <span className="text-cyan-400">{r.freq}</span>
+                <span className="text-cyan-400 font-mono">{r.freq}</span>
                 <span className="text-slate-400">{r.source}</span>
               </div>
-              <p className="text-[9.5px] text-slate-300 italic font-sans">{r.text}</p>
+              <p className="text-[10px] text-slate-300 italic font-sans">{r.text}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Scrollable News Container */}
-      <div className="flex-1 min-h-[260px] bg-[#0b0d11] border border-slate-800/80 rounded-xl flex flex-col overflow-hidden shadow-xl">
+      <div className="flex-1 min-h-[260px] bg-[#0b0e16] border border-slate-800/90 rounded-2xl flex flex-col overflow-hidden shadow-xl">
         
         {/* Overview Banner */}
-        <div className="bg-gradient-to-r from-[#331a0e] to-[#251209] p-2.5 flex items-center justify-between border-b border-orange-900/40 shrink-0 font-mono">
+        <div className="bg-gradient-to-r from-[#2c170d] via-[#1f110a] to-[#120a06] p-2.5 flex items-center justify-between border-b border-orange-900/40 shrink-0 font-mono">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[#bd5325] flex items-center justify-center text-white shadow shrink-0">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#d96736] to-[#b34a1d] flex items-center justify-center text-white shadow shrink-0">
               <Newspaper className="w-3.5 h-3.5" />
             </div>
-            <div className="text-xs font-sans font-medium text-white">
-              Overview <span className="italic text-[#e26e38] font-bold">Gotham HJ 66</span>
+            <div className="text-xs font-sans font-bold text-white">
+              OVERVIEW <span className="text-[#e26e38] font-mono text-[11px] ml-1">SECTOR HJ-66</span>
             </div>
           </div>
-          <span className="text-[9px] text-amber-400 font-bold">8 ARTICLES</span>
+          <span className="text-[9px] text-amber-400 font-bold bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800/60">8 ARTICLES</span>
         </div>
 
         {/* News Filter Pills */}
-        <div className="bg-[#0e1014] px-2.5 py-1.5 border-b border-slate-800/70 flex items-center gap-1 overflow-x-auto text-[10px] font-sans shrink-0 no-scrollbar">
+        <div className="bg-[#0e111a] px-2.5 py-1.5 border-b border-slate-800/80 flex items-center gap-1 overflow-x-auto text-[10px] font-sans shrink-0 no-scrollbar">
           {['major', 'local', 'incidents', 'recent'].map((tab) => (
             <button
               key={tab}
@@ -191,10 +194,10 @@ export default function MetricsOverview() {
                 setActiveTab(tab);
                 playBeep();
               }}
-              className={`px-2.5 py-0.5 rounded capitalize shrink-0 font-bold transition-all ${
+              className={`px-2.5 py-0.5 rounded-lg capitalize shrink-0 font-bold transition-all ${
                 activeTab === tab
-                  ? 'bg-[#963f1d] text-white shadow'
-                  : 'bg-[#14161c] text-slate-400 hover:text-slate-200 border border-slate-800'
+                  ? 'bg-gradient-to-r from-[#a84924] to-[#873719] text-white shadow-sm'
+                  : 'bg-[#131620] text-slate-400 hover:text-slate-200 border border-slate-800/80'
               }`}
             >
               {tab}
