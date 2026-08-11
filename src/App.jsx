@@ -196,7 +196,7 @@ export default function App() {
         </div>
 
         {/* Dynamic View Rendering based on activeTab */}
-        <main className="flex-1 w-full p-3 pt-2 flex gap-3 overflow-hidden relative min-h-0">
+        <main className="flex-1 w-full p-2 sm:p-3 pt-2 flex flex-col lg:flex-row gap-3 overflow-y-auto lg:overflow-hidden relative min-h-0">
           
           {activeTab === 'dashboard' && (
             <>

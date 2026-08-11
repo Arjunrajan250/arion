@@ -248,7 +248,7 @@ export default function TacticalMap({ onSelectTarget }) {
   }, []);
 
   return (
-    <div className="relative w-full h-full bg-[#07090d] border border-slate-800/80 rounded-xl overflow-hidden flex flex-col shadow-2xl">
+    <div className="relative w-full h-[400px] sm:h-[480px] lg:h-full min-h-[350px] bg-[#07090d] border border-slate-800/80 rounded-xl overflow-hidden flex flex-col shadow-2xl shrink-0 lg:shrink">
       
       {/* Map Control Top Bar */}
       <div className="px-4 py-2 bg-[#0b0e14] border-b border-slate-800 flex items-center justify-between z-20 shrink-0 text-xs font-mono">

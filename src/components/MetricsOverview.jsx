@@ -88,7 +88,7 @@ export default function MetricsOverview() {
   ];
 
   return (
-    <div className="w-[330px] h-full flex flex-col gap-3 shrink-0 overflow-y-auto custom-scrollbar select-none bg-[#07090e]/90 p-3.5 rounded-2xl border border-slate-800/80 shadow-2xl min-h-0 font-sans backdrop-blur-md">
+    <div className="w-full lg:w-[320px] xl:w-[350px] h-auto lg:h-full flex flex-col gap-3 shrink-0 overflow-y-auto custom-scrollbar select-none bg-[#07090e]/90 p-3.5 rounded-2xl border border-slate-800/80 shadow-2xl min-h-[300px] font-sans backdrop-blur-md">
       
       {/* 2x3 Expanded Metrics Cards Grid */}
       <div className="grid grid-cols-2 gap-2.5 shrink-0 font-mono">

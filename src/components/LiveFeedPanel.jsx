@@ -160,7 +160,7 @@ export default function LiveFeedPanel({ onSelectFelon }) {
   ];
 
   return (
-    <div className="w-[320px] flex flex-col gap-2.5 shrink-0 h-full overflow-y-auto custom-scrollbar select-none bg-[#080a0d] p-3 rounded-2xl border border-slate-800/80 shadow-2xl min-h-0 font-sans">
+    <div className="w-full lg:w-[320px] xl:w-[350px] flex flex-col gap-2.5 shrink-0 h-auto lg:h-full overflow-y-auto custom-scrollbar select-none bg-[#080a0d] p-3 rounded-2xl border border-slate-800/80 shadow-2xl min-h-[300px] font-sans">
       
       {/* Camera Selection Switcher Bar */}
       <div className="flex items-center justify-between gap-1 p-1 bg-[#0b0d12] rounded-xl border border-slate-800 shrink-0 font-mono text-[10px]">
