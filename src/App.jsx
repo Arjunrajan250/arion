@@ -1,9 +1,10 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, CheckCircle2, ChevronRight, Clock3, MapPin } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import MetricsOverview from './components/MetricsOverview';
+import TacticalMap from './components/TacticalMap';
 import LiveFeedPanel from './components/LiveFeedPanel';
 import FelonModal from './components/FelonModal';
 import SurveillanceView from './components/SurveillanceView';
@@ -20,8 +21,6 @@ import CyberTerminal from './components/CyberTerminal';
 import DossierPdfModal from './components/DossierPdfModal';
 import { isMuted, setMuted, toggleMute } from './utils/soundEngine';
 import { initSpeechRecognition, speakText } from './utils/voiceAssistant';
-
-const TacticalMap = lazy(() => import('./components/TacticalMap'));
 
 const viewDetails = {
   dashboard: { title: 'Operations overview', eyebrow: 'Intelligence', location: 'Gotham · Sector HJ-66' },
@@ -302,8 +301,8 @@ export default function App() {
               {activeTab === 'dashboard' && (
                 <>
                   <MetricsOverview />
-                  <Suspense fallback={<div className="flex h-[430px] w-full items-center justify-center rounded-xl border border-white/[0.08] bg-[#070b11] text-xs text-slate-500 lg:h-full" role="status">Loading global radar…</div>}>
-                    <TacticalMap
+                  <TacticalMap
+                    onNotify={notify}
                     selectedCamera={selectedCamera}
                     onSelectCamera={setSelectedCamera}
                     onSelectAudioIntercept={(audio) => {
@@ -313,8 +312,7 @@ export default function App() {
                     activeAudioIntercept={selectedAudioIntercept}
                     onCloseAudioIntercept={() => setSelectedAudioIntercept(null)}
                     onSelectTarget={(target) => setSelectedFelon({ name: target.title || target.name })}
-                    />
-                  </Suspense>
+                  />
                   <LiveFeedPanel onSelectFelon={setSelectedFelon} />
                 </>
               )}

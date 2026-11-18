@@ -143,10 +143,10 @@ export default function LiveFeedPanel({ onSelectFelon }) {
   ];
 
   return (
-    <div className="w-full lg:w-[320px] xl:w-[360px] flex flex-col gap-2.5 shrink-0 h-auto lg:h-full overflow-y-auto custom-scrollbar select-none bg-[#07090e]/95 p-3 rounded-2xl border border-slate-800/90 shadow-2xl min-h-[300px] font-sans backdrop-blur-md">
+    <div className="flex h-auto min-h-[300px] w-full shrink-0 select-none flex-col gap-3 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#080c12] p-3 font-sans shadow-xl shadow-black/10 custom-scrollbar lg:h-full lg:w-[272px] xl:w-[300px]">
 
       {/* Camera Selection Switcher Bar */}
-      <div className="flex items-center justify-between gap-1 p-1 bg-[#090e18] rounded-xl border border-slate-800 shrink-0 font-mono text-[10px]">
+      <div className="flex shrink-0 items-center justify-between gap-1 rounded-lg border border-white/[0.07] bg-black/20 p-1 font-mono text-[9px]">
         {cameras.map((cam) => (
           <button
             key={cam.id}
@@ -156,8 +156,8 @@ export default function LiveFeedPanel({ onSelectFelon }) {
             }}
             className={`px-2 py-1 rounded-lg font-bold transition-all ${
               selectedCam === cam.id
-                ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(0,242,254,0.4)]'
-                : 'text-slate-400 hover:text-white bg-slate-900/60'
+                ? 'bg-cyan-400/[0.13] text-cyan-200'
+                : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-200'
             }`}
           >
             {cam.id}
@@ -166,7 +166,7 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       </div>
 
       {/* CCTV Video Feed Window with Real Image */}
-      <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-slate-800 bg-slate-950 shadow-xl shrink-0">
+      <div className="relative aspect-video shrink-0 overflow-hidden rounded-lg border border-white/[0.09] bg-slate-950 shadow-lg">
         <img
           src={currentCamData.image}
           alt={currentCamData.name}
@@ -201,7 +201,7 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       </div>
 
       {/* Real-Time Camera Event Ticker Log */}
-      <div className="p-2.5 rounded-xl bg-[#080d16] border border-slate-800 flex flex-col gap-1 shrink-0 shadow-inner font-mono text-[10px]">
+      <div className="flex shrink-0 flex-col gap-1 rounded-lg border border-white/[0.07] bg-[#0b1119] p-3 font-mono text-[10px]">
         <div className="flex items-center justify-between text-cyan-400 font-bold border-b border-slate-800 pb-1">
           <div className="flex items-center gap-1.5">
             <Eye className="w-3.5 h-3.5" />
@@ -226,7 +226,7 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       </div>
 
       {/* Suspects & Felons List Container - Scrollable */}
-      <div className="flex-1 min-h-[260px] bg-[#070b14] border border-slate-800 rounded-xl p-2.5 flex flex-col gap-2 overflow-hidden shadow-xl">
+      <div className="flex min-h-[260px] flex-1 flex-col gap-2 overflow-hidden rounded-lg border border-white/[0.07] bg-[#0b1119] p-3">
 
         {/* Section Header */}
         <div className="flex items-center justify-between shrink-0">

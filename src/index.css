@@ -265,6 +265,43 @@ textarea:focus-visible {
   100% { transform: translateY(1000%); }
 }
 
+@keyframes satelliteScan {
+  from { transform: translateY(-6rem); opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  to { transform: translateY(32rem); opacity: 0; }
+}
+
+@keyframes satellitePulse {
+  0% { transform: scale(0.7); opacity: 0.8; }
+  75%, 100% { transform: scale(1.65); opacity: 0; }
+}
+
+.satellite-scan {
+  animation: satelliteScan 8s linear infinite;
+}
+
+.satellite-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: satellitePulse 2.8s ease-out infinite;
+}
+
+.satellite-hotspot {
+  cursor: pointer;
+  outline: none;
+  transition: filter 150ms ease;
+}
+
+.satellite-hotspot:hover,
+.satellite-hotspot:focus-visible {
+  filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.8));
+}
+
+.satellite-hotspot:focus-visible > circle:nth-of-type(2) {
+  stroke-width: 3;
+}
+
 .animate-pulse-glow {
   animation: pulseGlow 2.5s infinite ease-in-out;
 }

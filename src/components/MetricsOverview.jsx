@@ -1,255 +1,133 @@
 import React, { useState } from 'react';
-import { Bell, Target, Search, AlertTriangle, Newspaper, Radio, Cpu, Activity } from 'lucide-react';
+import {
+  Activity,
+  BellRing,
+  ChevronRight,
+  Cpu,
+  Crosshair,
+  Newspaper,
+  Radio,
+  ShieldAlert,
+  Signal,
+} from 'lucide-react';
 import { playBeep } from '../utils/soundEngine';
+
+const METRICS = [
+  { label: 'Open incidents', value: '08', detail: '2 critical', icon: BellRing, color: 'text-red-300', iconStyle: 'border-red-400/15 bg-red-400/[0.06] text-red-300' },
+  { label: 'Tracked targets', value: '32', detail: '5 priority', icon: Crosshair, color: 'text-cyan-200', iconStyle: 'border-cyan-400/15 bg-cyan-400/[0.06] text-cyan-300' },
+  { label: 'Active intercepts', value: '12', detail: '4 decoding', icon: Radio, color: 'text-amber-200', iconStyle: 'border-amber-400/15 bg-amber-400/[0.06] text-amber-300' },
+  { label: 'Online nodes', value: '32/32', detail: '100% uptime', icon: Signal, color: 'text-emerald-200', iconStyle: 'border-emerald-400/15 bg-emerald-400/[0.06] text-emerald-300' },
+  { label: 'Field units', value: '14', detail: '6 deployed', icon: ShieldAlert, color: 'text-slate-100', iconStyle: 'border-white/[0.08] bg-white/[0.04] text-slate-300' },
+  { label: 'Drone patrols', value: '06', detail: '2 returning', icon: Cpu, color: 'text-violet-200', iconStyle: 'border-violet-400/15 bg-violet-400/[0.06] text-violet-300' },
+];
+
+const NEWS = [
+  { id: '1', title: 'Quill Herald', location: 'New Bedford', time: '14:32', tag: 'CRITICAL', content: 'Perimeter movement flagged near the western approach. Local response channel is active.' },
+  { id: '2', title: 'New Bedford Times', location: 'Harbor district', time: '14:28', tag: 'LOCAL', content: 'Harbor surveillance reported increased marine traffic along the western pier.' },
+  { id: '3', title: 'Breton Tribune', location: 'Sector 7 Midtown', time: '14:15', tag: 'INCIDENT', content: 'Power grid spike detected near Substation 4. Technical response unit dispatched.' },
+  { id: '4', title: 'New Port Gazette', location: 'East Docks', time: '14:02', tag: 'NOTICE', content: 'Maritime grid reports normal traffic. Automated radar operating at full capacity.' },
+  { id: '5', title: 'Gotham Chronicle', location: 'Central Plaza', time: '13:55', tag: 'LOCAL', content: 'Expanded automated camera coverage is now active across the financial district.' },
+  { id: '6', title: 'Metro Dispatch Log', location: 'Highway 9 Exit', time: '13:40', tag: 'ALERT', content: 'Vehicle telemetry mismatch flagged on black SUV heading northbound.' },
+  { id: '7', title: 'Harbor Patrol', location: 'Pier 12', time: '13:22', tag: 'INCIDENT', content: 'Unidentified frequency intercepted from container vessel 44B. Decryption in progress.' },
+];
+
+const RADIO_INTERCEPTS = [
+  { freq: '440.25', source: 'Alpha-1', text: 'Perimeter clear at Gate 4. Proceeding to Sector 7.' },
+  { freq: '890.10', source: 'Kilo', text: 'Visual contact confirmed. Standing by for intercept.' },
+  { freq: '1240.5', source: 'VHF', text: 'Encrypted burst received. Decrypting packet 88-B.' },
+];
+
+function PanelHeader({ icon: Icon, title, detail, action }) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2">
+        <Icon className="h-3.5 w-3.5 shrink-0 text-slate-500" aria-hidden="true" />
+        <h2 className="truncate text-[11px] font-semibold text-slate-200">{title}</h2>
+      </div>
+      {action || <span className="shrink-0 font-mono text-[8px] uppercase tracking-wider text-slate-600">{detail}</span>}
+    </div>
+  );
+}
 
 export default function MetricsOverview() {
   const [activeTab, setActiveTab] = useState('recent');
-
-  const metricsData = [
-    { label: 'Total Alerts', value: '3,456', color: '#ff556e', icon: Bell, bg: 'bg-red-950/30' },
-    { label: 'Felons Detections', value: '6,789', color: '#00f0ff', icon: Target, bg: 'bg-cyan-950/30' },
-    { label: 'Anomaly Events', value: '1,789', color: '#a3e635', icon: Search, bg: 'bg-lime-950/30' },
-    { label: 'Major Incidents', value: '3,456', color: '#ff3b5c', icon: AlertTriangle, bg: 'bg-red-950/30' },
-    { label: 'Active Intercepts', value: '892', color: '#38bdf8', icon: Radio, bg: 'bg-sky-950/30' },
-    { label: 'Drone Patrols', value: '14 Active', color: '#c084fc', icon: Cpu, bg: 'bg-purple-950/30' },
-  ];
-
-  const newsItems = [
-    {
-      id: '1',
-      title: 'Quill Herald (QH)',
-      location: 'New Bedford',
-      time: '14:32:10',
-      tag: 'CRITICAL',
-      content: '"Stay informed with the latest updates from the Quill Herald. Delivering real-time news and in-depth analysis. 📰🌍 #QuillHerald"'
-    },
-    {
-      id: '2',
-      title: 'New Bedford Times (NBT)',
-      location: 'New Bedford',
-      time: '14:28:45',
-      tag: 'LOCAL',
-      content: '"Harbor surveillance grid reported increased marine traffic along western pier. Secondary patrols deployed."'
-    },
-    {
-      id: '3',
-      title: 'Breton Tribune (BT)',
-      location: 'Sector 7 Midtown',
-      time: '14:15:00',
-      tag: 'INCIDENT',
-      content: '"Power grid spike detected near Substation 4. Emergency tech response unit dispatched to site."'
-    },
-    {
-      id: '4',
-      title: 'New Port Gazette (NPG)',
-      location: 'East Docks',
-      time: '14:02:30',
-      tag: 'NOTICE',
-      content: '"Maritime grid reports normal traffic along western harbor line. Automated radar operating at 100% capacity."'
-    },
-    {
-      id: '5',
-      title: 'Gotham Chronicle (GC)',
-      location: 'Central Plaza',
-      time: '13:55:12',
-      tag: 'LOCAL',
-      content: '"City Council approves expanded automated camera coverage for downtown financial district."'
-    },
-    {
-      id: '6',
-      title: 'Metro Dispatch Log',
-      location: 'Highway 9 Exit',
-      time: '13:40:05',
-      tag: 'ALERT',
-      content: '"Vehicle telemetry mismatch flagged on black SUV heading northbound. Automated tracking engaged."'
-    },
-    {
-      id: '7',
-      title: 'Harbor Patrol Broadcast',
-      location: 'Pier 12 Warehouses',
-      time: '13:22:40',
-      tag: 'INCIDENT',
-      content: '"Unidentified frequency transmission intercepted from container vessel 44B. Decryption in progress."'
-    },
-    {
-      id: '8',
-      title: 'Cyber Telemetry Bulletin',
-      location: 'Mainframe Array 02',
-      time: '13:10:19',
-      tag: 'SYSTEM',
-      content: '"Orbital satellite sync completed with 0.02ms latency. All 32 regional camera feeds online."'
-    }
-  ];
-
-  const filteredNews = newsItems.filter((item) => {
+  const filteredNews = NEWS.filter((item) => {
     if (activeTab === 'recent') return true;
     if (activeTab === 'major') return ['CRITICAL', 'ALERT'].includes(item.tag);
     if (activeTab === 'incidents') return item.tag === 'INCIDENT';
-    return item.tag === activeTab.toUpperCase();
+    return item.tag === 'LOCAL';
   });
 
-  const radioIntercepts = [
-    { freq: '440.25 MHz', source: 'Unit Alpha-1', text: 'Perimeter check clear at Gate 4. Proceeding to Sector 7.' },
-    { freq: '890.10 MHz', source: 'Kilo Recon', text: 'Visual contact confirmed on target vehicle. Standby for intercept.' },
-    { freq: '1240.5 MHz', source: 'VHF Encrypted', text: 'Encrypted burst received. Decrypting packet 88-B...' }
-  ];
-
   return (
-    <div className="w-full lg:w-[320px] xl:w-[350px] h-auto lg:h-full flex flex-col gap-3 shrink-0 overflow-y-auto custom-scrollbar select-none bg-[#07090e]/90 p-3.5 rounded-2xl border border-slate-800/80 shadow-2xl min-h-[300px] font-sans backdrop-blur-md">
-      
-      {/* 2x3 Expanded Metrics Cards Grid */}
-      <div className="grid grid-cols-2 gap-2.5 shrink-0 font-mono">
-        {metricsData.map((m) => {
-          const IconComp = m.icon;
+    <aside className="flex h-auto w-full shrink-0 flex-col gap-3 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#080c12] p-3 shadow-xl shadow-black/10 custom-scrollbar lg:h-full lg:w-[272px] xl:w-[292px]" aria-label="Operational intelligence summary">
+      <div className="flex shrink-0 items-center justify-between px-0.5">
+        <div><p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-600">Operations</p><h2 className="mt-1 text-sm font-semibold text-slate-100">Operational pulse</h2></div>
+        <span className="flex items-center gap-1.5 rounded-md border border-emerald-400/15 bg-emerald-400/[0.05] px-2 py-1 text-[8px] font-semibold uppercase tracking-wider text-emerald-300"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Live</span>
+      </div>
+
+      <div className="grid shrink-0 grid-cols-2 gap-2">
+        {METRICS.map((metric) => {
+          const Icon = metric.icon;
           return (
-            <div
-              key={m.label}
-              className="bg-[#0b0e16] border border-slate-800/90 rounded-xl p-2.5 flex flex-col items-center justify-center text-center shadow-md hover:border-slate-700 transition-colors"
-            >
-              <div className={`mb-1 p-1.5 rounded-xl ${m.bg} group-hover:scale-110 transition-transform`} style={{ color: m.color }}>
-                <IconComp className="w-3.5 h-3.5 opacity-90" />
+            <article key={metric.label} className="group rounded-lg border border-white/[0.07] bg-[#0b1119] p-2.5 transition-colors hover:border-white/[0.13] hover:bg-[#0d141e]">
+              <div className="flex items-start justify-between gap-2">
+                <span className={`flex h-7 w-7 items-center justify-center rounded-md border ${metric.iconStyle}`}><Icon className="h-3.5 w-3.5" aria-hidden="true" /></span>
+                <span className="font-mono text-[8px] text-slate-600">{metric.detail}</span>
               </div>
-              <span className="text-[9.5px] text-slate-400 font-sans font-medium tracking-tight leading-tight">
-                {m.label}
-              </span>
-              <span className="text-base font-black font-mono tracking-tight mt-0.5" style={{ color: m.color }}>
-                {m.value}
-              </span>
-            </div>
+              <p className={`mt-2.5 font-mono text-lg font-semibold tracking-tight ${metric.color}`}>{metric.value}</p>
+              <p className="mt-0.5 text-[9px] text-slate-500">{metric.label}</p>
+            </article>
           );
         })}
       </div>
 
-      {/* System Telemetry & Signal Status Bar */}
-      <div className="p-2.5 rounded-xl bg-[#0b0e16] border border-slate-800/90 flex flex-col gap-2 shrink-0 shadow-md font-mono text-[10px]">
-        <div className="flex items-center justify-between text-slate-400 font-bold border-b border-slate-800/80 pb-1.5">
-          <div className="flex items-center gap-1.5 text-cyan-400">
-            <Activity className="w-3.5 h-3.5 animate-pulse" />
-            <span>TELEMETRY MATRIX</span>
-          </div>
-          <span className="text-emerald-400 font-extrabold flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-            ONLINE
-          </span>
-        </div>
-
-        <div className="space-y-1.5 pt-0.5">
-          <div className="flex justify-between text-slate-300">
-            <span>CPU Processing Load:</span>
-            <span className="font-bold text-cyan-400">42% • 12 Cores</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
-            <div className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full w-[42%]" />
-          </div>
-
-          <div className="flex justify-between text-slate-300">
-            <span>Network Bandwidth:</span>
-            <span className="font-bold text-emerald-400">1.44 Gbps</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
-            <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full w-[68%]" />
-          </div>
-        </div>
-      </div>
-
-      {/* Live Radio Intercepts Log */}
-      <div className="p-2.5 rounded-xl bg-[#0b0e16] border border-slate-800/90 flex flex-col gap-2 shrink-0 shadow-md font-mono text-[10px]">
-        <div className="flex items-center justify-between text-amber-400 font-bold border-b border-slate-800/80 pb-1.5">
-          <div className="flex items-center gap-1.5">
-            <Radio className="w-3.5 h-3.5 text-amber-400" />
-            <span>RADIO INTERCEPTS</span>
-          </div>
-          <span className="text-amber-400 font-bold animate-pulse text-[9px] bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800">LIVE FEED</span>
-        </div>
-
-        <div className="space-y-1.5 max-h-28 overflow-y-auto pr-1 custom-scrollbar">
-          {radioIntercepts.map((r, i) => (
-            <div key={i} className="p-2 rounded-lg bg-slate-900/90 border border-slate-800/80 flex flex-col gap-1 hover:border-amber-500/40 transition-colors">
-              <div className="flex justify-between font-bold text-slate-300">
-                <span className="text-cyan-400 font-mono">{r.freq}</span>
-                <span className="text-slate-400">{r.source}</span>
-              </div>
-              <p className="text-[10px] text-slate-300 italic font-sans">{r.text}</p>
+      <section className="shrink-0 rounded-lg border border-white/[0.07] bg-[#0b1119] p-3" aria-label="System telemetry">
+        <PanelHeader icon={Activity} title="System telemetry" detail="All systems nominal" />
+        <div className="mt-3 space-y-3">
+          {[
+            { label: 'Processing load', value: '42%', width: '42%', color: 'bg-cyan-400' },
+            { label: 'Network capacity', value: '68%', width: '68%', color: 'bg-emerald-400' },
+          ].map((item) => (
+            <div key={item.label}>
+              <div className="flex items-center justify-between text-[9px]"><span className="text-slate-500">{item.label}</span><span className="font-mono text-slate-300">{item.value}</span></div>
+              <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/[0.05]" role="progressbar" aria-label={item.label} aria-valuemin="0" aria-valuemax="100" aria-valuenow={item.value.replace('%', '')}><div className={`h-full rounded-full ${item.color}`} style={{ width: item.width }} /></div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Scrollable News Container */}
-      <div className="flex-1 min-h-[260px] bg-[#0b0e16] border border-slate-800/90 rounded-2xl flex flex-col overflow-hidden shadow-xl">
-        
-        {/* Overview Banner */}
-        <div className="bg-gradient-to-r from-[#2c170d] via-[#1f110a] to-[#120a06] p-2.5 flex items-center justify-between border-b border-orange-900/40 shrink-0 font-mono">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#d96736] to-[#b34a1d] flex items-center justify-center text-white shadow shrink-0">
-              <Newspaper className="w-3.5 h-3.5" />
+      <section className="shrink-0 rounded-lg border border-white/[0.07] bg-[#0b1119] p-3" aria-label="Radio intercepts">
+        <PanelHeader icon={Radio} title="Radio intercepts" detail="MHz · Simulated" />
+        <div className="mt-2 divide-y divide-white/[0.05]">
+          {RADIO_INTERCEPTS.map((intercept) => (
+            <div key={intercept.freq} className="py-2 first:pt-1 last:pb-0">
+              <div className="flex items-center justify-between gap-2 font-mono text-[8px]"><span className="font-semibold text-amber-300">{intercept.freq} MHz</span><span className="text-slate-600">{intercept.source}</span></div>
+              <p className="mt-1 line-clamp-2 text-[9px] leading-relaxed text-slate-400">{intercept.text}</p>
             </div>
-            <div className="text-xs font-sans font-bold text-white">
-              OVERVIEW <span className="text-[#e26e38] font-mono text-[11px] ml-1">SECTOR HJ-66</span>
-            </div>
-          </div>
-          <span className="text-[9px] text-amber-400 font-bold bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800/60">{filteredNews.length} ARTICLES</span>
-        </div>
-
-        {/* News Filter Pills */}
-        <div className="bg-[#0e111a] px-2.5 py-1.5 border-b border-slate-800/80 flex items-center gap-1 overflow-x-auto text-[10px] font-sans shrink-0 no-scrollbar">
-          {['major', 'local', 'incidents', 'recent'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                playBeep();
-              }}
-              aria-pressed={activeTab === tab}
-              className={`px-2.5 py-0.5 rounded-lg capitalize shrink-0 font-bold transition-all ${
-                activeTab === tab
-                  ? 'bg-gradient-to-r from-[#a84924] to-[#873719] text-white shadow-sm'
-                  : 'bg-[#131620] text-slate-400 hover:text-slate-200 border border-slate-800/80'
-              }`}
-            >
-              {tab}
-            </button>
           ))}
         </div>
+      </section>
 
-        {/* Scrollable News Feed List */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-2.5 flex flex-col gap-3 custom-scrollbar">
+      <section className="flex min-h-[280px] flex-1 flex-col overflow-hidden rounded-lg border border-white/[0.07] bg-[#0b1119]" aria-label="Field intelligence feed">
+        <div className="shrink-0 p-3 pb-2"><PanelHeader icon={Newspaper} title="Field intelligence" detail={`${filteredNews.length} updates`} /></div>
+        <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-white/[0.06] px-3 pb-2.5 no-scrollbar" aria-label="Filter intelligence updates">
+          {['recent', 'major', 'incidents', 'local'].map((tab) => (
+            <button key={tab} type="button" onClick={() => { setActiveTab(tab); playBeep(); }} aria-pressed={activeTab === tab} className={`shrink-0 rounded-md px-2 py-1 text-[8px] font-medium capitalize transition-colors ${activeTab === tab ? 'bg-white/[0.09] text-slate-200' : 'text-slate-600 hover:text-slate-300'}`}>{tab}</button>
+          ))}
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 custom-scrollbar">
           {filteredNews.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-col gap-1.5 pb-2.5 border-b border-slate-800/60 last:border-0 hover:bg-slate-900/40 p-1.5 rounded transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-[#18363a] text-[#2dd4bf] flex items-center justify-center shrink-0 border border-[#2dd4bf]/30">
-                    <Newspaper className="w-3 h-3" />
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-                      <span className="font-bold text-slate-100 text-xs font-sans">
-                        {item.title}
-                      </span>
-                    </div>
-                    <span className="text-[9.5px] text-slate-400 font-mono">
-                      {item.location}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-[9px] font-mono text-slate-400 font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">
-                  {item.time}
-                </span>
+            <article key={item.id} className="group border-b border-white/[0.05] py-3 last:border-0">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2"><span className={`h-1.5 w-1.5 shrink-0 rounded-full ${item.tag === 'CRITICAL' || item.tag === 'ALERT' ? 'bg-red-400' : item.tag === 'INCIDENT' ? 'bg-amber-400' : 'bg-cyan-500'}`} /><h3 className="truncate text-[10px] font-medium text-slate-300 group-hover:text-slate-100">{item.title}</h3></div>
+                <time className="shrink-0 font-mono text-[8px] text-slate-600">{item.time}</time>
               </div>
-
-              <p className="text-[10px] text-slate-300 font-sans leading-relaxed pl-8 italic">
-                {item.content}
-              </p>
-            </div>
+              <p className="mt-1.5 line-clamp-2 text-[9px] leading-relaxed text-slate-500">{item.content}</p>
+              <div className="mt-1.5 flex items-center justify-between"><span className="text-[8px] text-slate-600">{item.location}</span><ChevronRight className="h-3 w-3 text-slate-700 transition-colors group-hover:text-cyan-500" /></div>
+            </article>
           ))}
         </div>
-
-      </div>
-
-    </div>
+      </section>
+    </aside>
   );
 }
