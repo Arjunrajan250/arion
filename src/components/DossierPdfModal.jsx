@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Printer, Download, ShieldCheck, FileText } from 'lucide-react';
+import { X, Printer, FileText } from 'lucide-react';
 import { playClick, playBeep } from '../utils/soundEngine';
 
 export default function DossierPdfModal({ isOpen, onClose }) {
@@ -11,8 +11,8 @@ export default function DossierPdfModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md font-sans">
-      <div className="relative w-full max-w-3xl h-[650px] rounded-2xl bg-[#090b10] border border-cyan-500/40 shadow-[0_0_50px_rgba(0,242,254,0.2)] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md font-sans" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <div className="relative w-full max-w-3xl h-[min(760px,calc(100dvh-1rem))] sm:h-[min(760px,calc(100dvh-2rem))] rounded-2xl bg-[#090b10] border border-cyan-500/40 shadow-[0_0_50px_rgba(0,242,254,0.2)] flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="pdf-preview-title">
         
         {/* Modal Header */}
         <div className="px-6 py-4 bg-[#0b0e14] border-b border-slate-800 flex items-center justify-between font-mono shrink-0 print:hidden">
@@ -21,7 +21,7 @@ export default function DossierPdfModal({ isOpen, onClose }) {
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-white">TACTICAL INTELLIGENCE DOSSIER (PDF PREVIEW)</h2>
+              <h2 id="pdf-preview-title" className="text-sm sm:text-base font-extrabold text-white">INTELLIGENCE DOSSIER · PDF PREVIEW</h2>
               <p className="text-xs text-slate-400">Classification: TOP SECRET // NOFORN // LEVEL 5 CLEARANCE</p>
             </div>
           </div>
@@ -39,6 +39,7 @@ export default function DossierPdfModal({ isOpen, onClose }) {
                 playBeep();
                 onClose();
               }}
+              aria-label="Close dossier preview"
               className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition-all"
             >
               <X className="w-5 h-5" />
@@ -47,7 +48,7 @@ export default function DossierPdfModal({ isOpen, onClose }) {
         </div>
 
         {/* Printable PDF Preview Body */}
-        <div className="flex-1 p-8 bg-slate-950 overflow-y-auto custom-scrollbar font-mono text-slate-100 text-xs flex flex-col gap-6 relative">
+        <div id="printable-dossier" className="flex-1 p-4 sm:p-8 bg-slate-950 overflow-y-auto custom-scrollbar font-mono text-slate-100 text-xs flex flex-col gap-6 relative">
           
           {/* Watermark Overlay */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 rotate-[-30deg]">
@@ -61,23 +62,23 @@ export default function DossierPdfModal({ isOpen, onClose }) {
             <div>
               <h1 className="text-xl font-extrabold text-cyan-400 tracking-wider">ARION TACTICAL COMMAND</h1>
               <p className="text-[11px] text-slate-400 mt-0.5">INTELLIGENCE BRIEFING & THREAT ANALYSIS REPORT</p>
-              <p className="text-[10px] text-slate-500">Document ID: AR-2025-9902X • Sector Gotham HJ-66</p>
+              <p className="text-[10px] text-slate-500">Document ID: AR-2026-9902X • Sector Gotham HJ-66</p>
             </div>
             <div className="text-right border-l border-slate-800 pl-4">
               <span className="px-2.5 py-1 rounded bg-red-950 text-red-400 border border-red-700 font-bold text-xs">
                 CLEARANCE LV.5
               </span>
-              <p className="text-[10px] text-slate-400 mt-2">Date: March 31, 2025</p>
+              <p className="text-[10px] text-slate-400 mt-2">Date: {new Date().toLocaleDateString('en-GB', { dateStyle: 'long' })}</p>
             </div>
           </div>
 
           {/* Subject Dossier Details */}
-          <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-[#0e121a] border border-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-[#0e121a] border border-slate-800">
             <div className="col-span-1">
               <img
                 src="/assets/marcus_thompson.png"
                 alt="Marcus Thompson"
-                className="w-full h-40 object-cover rounded-lg border border-slate-700 shadow-md"
+                className="w-full max-h-56 sm:h-40 object-cover rounded-lg border border-slate-700 shadow-md"
               />
             </div>
             <div className="col-span-2 space-y-2">

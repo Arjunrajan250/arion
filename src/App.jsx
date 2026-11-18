@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { AlertTriangle, CheckCircle2, ChevronRight, Clock3, MapPin } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
 import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import MetricsOverview from './components/MetricsOverview';
-import TacticalMap from './components/TacticalMap';
 import LiveFeedPanel from './components/LiveFeedPanel';
 import FelonModal from './components/FelonModal';
 import SurveillanceView from './components/SurveillanceView';
+import CyberCommandView from './components/CyberCommandView';
 import AlertsView from './components/AlertsView';
 import ReportingView from './components/ReportingView';
 import CampaignsView from './components/CampaignsView';
@@ -16,26 +18,65 @@ import AudioInterceptModal from './components/AudioInterceptModal';
 import DispatchSimulatorModal from './components/DispatchSimulatorModal';
 import CyberTerminal from './components/CyberTerminal';
 import DossierPdfModal from './components/DossierPdfModal';
-import { AlertTriangle, MapPin, Activity, ShieldCheck } from 'lucide-react';
-import { toggleMute, isMuted } from './utils/soundEngine';
+import { isMuted, setMuted, toggleMute } from './utils/soundEngine';
 import { initSpeechRecognition, speakText } from './utils/voiceAssistant';
+
+const TacticalMap = lazy(() => import('./components/TacticalMap'));
+
+const viewDetails = {
+  dashboard: { title: 'Operations overview', eyebrow: 'Intelligence', location: 'Gotham · Sector HJ-66' },
+  surveillance: { title: 'Surveillance matrix', eyebrow: 'Intelligence', location: 'Node 06 · Crosswalk Alpha' },
+  cybercommand: { title: 'Cyber command', eyebrow: 'Intelligence', location: 'National cyber grid' },
+  livefeed: { title: 'Live camera network', eyebrow: 'Intelligence', location: '4 optical nodes connected' },
+  alerts: { title: 'Incident response', eyebrow: 'Operations', location: 'Regional incident queue' },
+  campaigns: { title: 'Active campaigns', eyebrow: 'Operations', location: 'Joint operations network' },
+  reporting: { title: 'Intelligence reports', eyebrow: 'Operations', location: 'Secure records archive' },
+};
+
+const themeOptions = {
+  cyberhud: { background: '#050907', border: 'rgba(52, 211, 153, 0.20)', accent: '#34d399', glow: 'rgba(16, 185, 129, 0.07)' },
+  cybercrime: { background: '#080609', border: 'rgba(248, 113, 113, 0.22)', accent: '#f87171', glow: 'rgba(239, 68, 68, 0.08)' },
+  cyan: { background: '#05080c', border: 'rgba(34, 211, 238, 0.18)', accent: '#22d3ee', glow: 'rgba(6, 182, 212, 0.07)' },
+  vintage: { background: '#06080d', border: 'rgba(96, 165, 250, 0.18)', accent: '#60a5fa', glow: 'rgba(59, 130, 246, 0.07)' },
+  amber: { background: '#0b0905', border: 'rgba(251, 191, 36, 0.20)', accent: '#fbbf24', glow: 'rgba(245, 158, 11, 0.07)' },
+  midnight: { background: '#05080c', border: 'rgba(34, 211, 238, 0.18)', accent: '#22d3ee', glow: 'rgba(6, 182, 212, 0.07)' },
+  stealth: { background: '#060708', border: 'rgba(148, 163, 184, 0.15)', accent: '#94a3b8', glow: 'rgba(148, 163, 184, 0.05)' },
+  crimson: { background: '#0b0608', border: 'rgba(248, 113, 113, 0.20)', accent: '#f87171', glow: 'rgba(239, 68, 68, 0.07)' },
+};
+
+function readPreference(key, fallback) {
+  try {
+    return window.localStorage.getItem(key) || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [activeTab, setActiveTab] = useState('surveillance');
-  const [theme, setTheme] = useState('midnight'); // midnight, amber, stealth, crimson
-  const [mutedState, setMutedState] = useState(false);
-  const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(() => {
+    const storedView = readPreference('arion-active-view', 'surveillance');
+    return viewDetails[storedView] ? storedView : 'surveillance';
+  });
+  const [theme, setTheme] = useState(() => readPreference('arion-theme', 'cyan'));
+  const [mutedState, setMutedState] = useState(() => {
+    const preference = readPreference('arion-muted', null);
+    const initialMuted = preference === null ? isMuted() : preference === 'true';
+    setMuted(initialMuted);
+    return initialMuted;
+  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => readPreference('arion-sidebar', 'false') === 'true');
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [toast, setToast] = useState(null);
+  const toastTimerRef = useRef(null);
 
-  // New Feature Modals
+  const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState(false);
   const [isGraphOpen, setIsGraphOpen] = useState(false);
   const [isAudioOpen, setIsAudioOpen] = useState(null);
   const [isDispatchOpen, setIsDispatchOpen] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
-  
-  // Modals state
   const [selectedFelon, setSelectedFelon] = useState(null);
   const [selectedAudioIntercept, setSelectedAudioIntercept] = useState({
     id: '1',
@@ -43,94 +84,159 @@ export default function App() {
     number: '555-234-9876',
     dest: '555-879-3456',
     type: 'Incoming',
-    isAlert: true
+    isAlert: true,
   });
   const [selectedCamera, setSelectedCamera] = useState('CCTV-X5');
+  const recognitionRef = useRef(null);
 
-  // Voice Assistant Initialization
-  const [recognition, setRecognition] = useState(null);
+  const notify = (message, type = 'success') => {
+    window.clearTimeout(toastTimerRef.current);
+    setToast({ message, type });
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 4000);
+  };
 
-  const handleToggleVoice = () => {
-    if (isVoiceActive) {
-      if (recognition) recognition.stop();
-      setIsVoiceActive(false);
-      speakText('Voice Assistant Deactivated.');
-    } else {
-      const rec = initSpeechRecognition((command) => {
-        handleVoiceCommand(command);
-      }, (active) => setIsVoiceActive(active));
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
-      if (rec) {
-        rec.start();
-        setRecognition(rec);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('arion-active-view', activeTab);
+      window.localStorage.setItem('arion-theme', theme);
+      window.localStorage.setItem('arion-sidebar', String(sidebarCollapsed));
+    } catch {
+      // The console still works when storage is unavailable.
+    }
+  }, [activeTab, theme, sidebarCollapsed]);
+
+  useEffect(() => () => {
+    recognitionRef.current?.stop();
+    window.clearTimeout(toastTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key !== 'Escape') return;
+      setSelectedFelon(null);
+      setIsGraphOpen(false);
+      setIsAudioOpen(null);
+      setIsDispatchOpen(false);
+      setIsTerminalOpen(false);
+      setIsPdfOpen(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  useEffect(() => {
+    const dialogs = document.querySelectorAll('[role="dialog"][aria-modal="true"]');
+    const dialog = dialogs[dialogs.length - 1];
+    if (!dialog) return undefined;
+
+    const previousFocus = document.activeElement;
+    const focusableSelector = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
+    const frame = window.requestAnimationFrame(() => {
+      if (!dialog.contains(document.activeElement)) dialog.querySelector(focusableSelector)?.focus();
+    });
+    const trapFocus = (event) => {
+      if (event.key !== 'Tab') return;
+      const focusable = [...dialog.querySelectorAll(focusableSelector)].filter((element) => element.getClientRects().length > 0);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
+    };
+    document.addEventListener('keydown', trapFocus);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener('keydown', trapFocus);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [selectedFelon, isCmdPaletteOpen, isGraphOpen, isAudioOpen, isDispatchOpen, isTerminalOpen, isPdfOpen]);
+
+  const handleVoiceCommand = (command) => {
+    const destinations = [
+      { keywords: ['dashboard', 'overview'], tab: 'dashboard', feedback: 'Opening operations overview.' },
+      { keywords: ['surveillance'], tab: 'surveillance', feedback: 'Opening surveillance matrix.' },
+      { keywords: ['alert'], tab: 'alerts', feedback: 'Opening incident response.' },
+      { keywords: ['report'], tab: 'reporting', feedback: 'Opening intelligence reports.' },
+      { keywords: ['campaign'], tab: 'campaigns', feedback: 'Opening active campaigns.' },
+      { keywords: ['live feed', 'camera'], tab: 'livefeed', feedback: 'Opening live camera network.' },
+      { keywords: ['cyber', 'i4c', 'crime', 'fraud'], tab: 'cybercommand', feedback: 'Opening cyber command.' },
+    ];
+    const destination = destinations.find((item) => item.keywords.some((keyword) => command.includes(keyword)));
+    if (destination) {
+      setActiveTab(destination.tab);
+      speakText(destination.feedback);
+    } else if (command.includes('terminal') || command.includes('command line')) {
+      setIsTerminalOpen(true);
+      speakText('Opening cyber terminal.');
+    } else if (command.includes('dispatch')) {
+      setIsDispatchOpen(true);
+      speakText('Opening unit dispatch.');
+    } else if (command.includes('graph')) {
+      setIsGraphOpen(true);
+      speakText('Opening intelligence graph.');
     }
   };
 
-  const handleVoiceCommand = (cmd) => {
-    if (cmd.includes('dashboard')) {
-      setActiveTab('dashboard');
-      speakText('Switched to main dashboard.');
-    } else if (cmd.includes('surveillance')) {
-      setActiveTab('surveillance');
-      speakText('Switched to live surveillance grid.');
-    } else if (cmd.includes('alert')) {
-      setActiveTab('alerts');
-      speakText('Loading tactical alerts matrix.');
-    } else if (cmd.includes('report')) {
-      setActiveTab('reporting');
-      speakText('Opening intelligence dossier reporting.');
-    } else if (cmd.includes('campaign')) {
-      setActiveTab('campaigns');
-      speakText('Opening campaign operations.');
-    } else if (cmd.includes('terminal') || cmd.includes('command line')) {
-      setIsTerminalOpen(true);
-      speakText('Cyber Terminal CLI online.');
-    } else if (cmd.includes('dispatch')) {
-      setIsDispatchOpen(true);
-      speakText('Opening unit dispatch simulator.');
-    } else if (cmd.includes('graph')) {
-      setIsGraphOpen(true);
-      speakText('Loading intelligence node network graph.');
+  const handleToggleVoice = () => {
+    if (isVoiceActive) {
+      recognitionRef.current?.stop();
+      recognitionRef.current = null;
+      setIsVoiceActive(false);
+      speakText('Voice control deactivated.');
+      return;
+    }
+
+    const recognition = initSpeechRecognition(handleVoiceCommand, setIsVoiceActive);
+    if (!recognition) {
+      notify('Voice recognition is not supported in this browser.', 'warning');
+      return;
+    }
+    try {
+      recognition.start();
+      recognitionRef.current = recognition;
+    } catch {
+      notify('Voice recognition is already starting. Please wait a moment.', 'warning');
     }
   };
 
   const handleToggleMute = () => {
     const nextMuted = toggleMute();
     setMutedState(nextMuted);
+    try {
+      window.localStorage.setItem('arion-muted', String(nextMuted));
+    } catch {
+      // Ignore unavailable storage.
+    }
   };
 
   if (showSplash) {
     return <SplashScreen onLaunch={() => setShowSplash(false)} />;
   }
 
-  // Theme Overlay Color Maps
-  const themeStyles = {
-    midnight: { bg: 'bg-[#050608]', border: 'border-slate-800/90', glow: 'rgba(12, 25, 40, 0.9)' },
-    amber: { bg: 'bg-[#0c0a05]', border: 'border-amber-900/60', glow: 'rgba(40, 30, 10, 0.9)' },
-    stealth: { bg: 'bg-[#040404]', border: 'border-slate-900', glow: 'rgba(20, 20, 20, 0.9)' },
-    crimson: { bg: 'bg-[#0d0505]', border: 'border-red-900/70', glow: 'rgba(40, 10, 10, 0.9)' },
-  }[theme] || { bg: 'bg-[#050608]', border: 'border-slate-800/90', glow: 'rgba(12, 25, 40, 0.9)' };
+  const currentView = viewDetails[activeTab] || viewDetails.dashboard;
+  const currentTheme = themeOptions[theme] || themeOptions.cyan;
 
   return (
-    <div className={`w-screen h-screen ${themeStyles.bg} text-slate-100 flex items-center justify-center p-2 font-sans select-none overflow-hidden relative transition-colors duration-500`}>
-      
-      {/* Dark Ambient Backdrop */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-0 opacity-60 transition-all duration-500"
-        style={{
-          background: `radial-gradient(circle at 50% 50%, ${themeStyles.glow} 0%, #030406 100%)`
-        }}
-      />
-
-      {/* Main Tactical Window Frame */}
-      <div className={`relative z-10 w-full h-full rounded-2xl border ${themeStyles.border} bg-[#090b0e] shadow-[0_30px_70px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden`}>
-        
-        {/* Main Header */}
-        <Header 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-          alertCount={54} 
+    <div
+      className="app-shell h-dvh w-full overflow-hidden bg-[#04070b] p-0 text-slate-100 sm:p-2"
+      data-theme={theme}
+      style={{ '--theme-accent': currentTheme.accent, background: `radial-gradient(circle at 50% 0%, ${currentTheme.glow}, transparent 55%), ${currentTheme.background}` }}
+    >
+      <div className="flex h-full w-full flex-col overflow-hidden border-white/[0.08] bg-[#070a10] shadow-2xl shadow-black/60 sm:rounded-xl sm:border" style={{ borderColor: currentTheme.border }}>
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          alertCount={8}
           onToggleSplash={() => setShowSplash(true)}
           onOpenCmdPalette={() => setIsCmdPaletteOpen(true)}
           isMuted={mutedState}
@@ -142,111 +248,87 @@ export default function App() {
           onOpenTerminal={() => setIsTerminalOpen(true)}
           onOpenGraph={() => setIsGraphOpen(true)}
           onOpenDispatch={() => setIsDispatchOpen(true)}
+          onOpenAudio={() => setIsAudioOpen(selectedAudioIntercept)}
           onOpenPdf={() => setIsPdfOpen(true)}
+          onOpenProfile={() => setSelectedFelon({ id: 'operator-mitchell', name: 'Robert Mitchell', mugshot: '/assets/robert_mitchell.png', threat: 'AUTHORIZED OPERATOR', location: 'City Operations Center', warrant: 'LEVEL 5 CLEARANCE' })}
         />
 
-        {/* Subheader / Status Bar Row */}
-        <div className="w-full px-6 sm:px-8 py-2.5 flex items-center justify-between z-20 shrink-0 border-b border-cyan-500/15 gap-4 sm:gap-6 overflow-hidden bg-[#04060b]/90 backdrop-blur-md text-xs sm:text-sm font-mono min-h-[48px]">
-          
-          {/* Location Title, Status & Telemetry */}
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-            {/* Sector Badge */}
-            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 shadow-sm">
-              <MapPin className="w-4 h-4 text-cyan-400 animate-pulse" />
-              <span className="text-xs sm:text-sm font-black tracking-wider text-white">
-                GOTHAM SECTOR HJ-66
-              </span>
-              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/50 text-[10px] font-bold text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                SEC-ONLINE
-              </span>
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+          <Sidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            collapsed={sidebarCollapsed}
+            setCollapsed={setSidebarCollapsed}
+            onOpenCommand={() => setIsCmdPaletteOpen(true)}
+          />
+
+          <section className="flex min-w-0 flex-1 flex-col" aria-label="Command workspace">
+            <div className="flex min-h-[64px] shrink-0 items-center justify-between gap-3 border-b border-white/[0.06] bg-[#080c12] px-4 py-3 sm:px-5 lg:px-6">
+              <div className="min-w-0">
+                <div className="mb-1 hidden items-center gap-1.5 text-[10px] text-slate-600 sm:flex">
+                  <span>{currentView.eyebrow}</span>
+                  <ChevronRight className="h-3 w-3" aria-hidden="true" />
+                  <span className="text-slate-500">{currentView.title}</span>
+                </div>
+                <h1 className="truncate text-[15px] font-semibold tracking-tight text-slate-100 sm:text-base">{currentView.title}</h1>
+                <p className="mt-1 flex items-center gap-1.5 truncate text-[10px] text-slate-600">
+                  <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  {currentView.location}
+                </p>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                <div className="hidden items-center gap-2 text-right md:flex">
+                  <Clock3 className="h-4 w-4 text-slate-600" aria-hidden="true" />
+                  <div>
+                    <time className="block font-mono text-xs font-medium tabular-nums text-slate-300" dateTime={currentTime.toISOString()}>
+                      {currentTime.toLocaleTimeString('en-GB', { hour12: false, timeZone: 'UTC' })} <span className="text-slate-600">UTC</span>
+                    </time>
+                    <span className="mt-0.5 block text-[9px] text-slate-600">{currentTime.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('alerts')}
+                  className="flex h-9 items-center gap-2 rounded-lg border border-red-400/15 bg-red-400/[0.06] px-2.5 text-[10px] font-medium text-red-300 transition-colors hover:border-red-400/30 hover:bg-red-400/10 sm:px-3"
+                >
+                  <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span><span className="hidden sm:inline">2 </span>Critical</span>
+                </button>
+              </div>
             </div>
 
-            {/* Live System Time */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-300 text-xs">
-              <span className="text-cyan-400 font-bold tracking-wider">SYS.TIME:</span>
-              <span className="text-slate-200">Tue, Mar 25 2025 • 09:56:23 PM</span>
-            </div>
-
-            {/* Telemetry Chips */}
-            <div className="hidden lg:flex items-center gap-2 text-xs font-bold text-slate-400">
-              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                DEFCON 2
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400">
-                SAT-LINK 99.8%
-              </span>
-            </div>
-          </div>
-
-          {/* Warning Notification Banner */}
-          <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-950/80 via-slate-900 to-slate-900 border border-red-700/50 text-xs font-sans text-red-100 shadow-[0_0_15px_rgba(239,68,68,0.2)] shrink min-w-0 overflow-hidden">
-            <div className="p-1 rounded-md bg-red-600 text-white font-extrabold shrink-0 shadow-sm animate-pulse">
-              <AlertTriangle className="w-3.5 h-3.5" />
-            </div>
-            <span className="px-2 py-0.5 rounded bg-red-900/80 text-red-300 font-mono font-bold text-[10px] tracking-wider shrink-0 border border-red-700/60 uppercase">
-              ROUTE LOG
-            </span>
-            <span className="truncate text-xs font-medium text-slate-200">
-              Individuals followed designated routes, and no suspicious activities or unauthorized entries were observed.
-            </span>
-          </div>
-
+            <main key={activeTab} className={`view-enter min-h-0 w-full flex-1 overflow-y-auto lg:flex lg:flex-row lg:gap-3 lg:overflow-hidden lg:p-3 ${activeTab === 'dashboard' ? 'flex flex-col gap-3 p-2 sm:p-3' : ''}`}>
+              {activeTab === 'dashboard' && (
+                <>
+                  <MetricsOverview />
+                  <Suspense fallback={<div className="flex h-[430px] w-full items-center justify-center rounded-xl border border-white/[0.08] bg-[#070b11] text-xs text-slate-500 lg:h-full" role="status">Loading global radar…</div>}>
+                    <TacticalMap
+                    selectedCamera={selectedCamera}
+                    onSelectCamera={setSelectedCamera}
+                    onSelectAudioIntercept={(audio) => {
+                      setSelectedAudioIntercept(audio);
+                      setIsAudioOpen(audio);
+                    }}
+                    activeAudioIntercept={selectedAudioIntercept}
+                    onCloseAudioIntercept={() => setSelectedAudioIntercept(null)}
+                    onSelectTarget={(target) => setSelectedFelon({ name: target.title || target.name })}
+                    />
+                  </Suspense>
+                  <LiveFeedPanel onSelectFelon={setSelectedFelon} />
+                </>
+              )}
+              {activeTab === 'surveillance' && <SurveillanceView onSelectFelon={setSelectedFelon} onNotify={notify} />}
+              {activeTab === 'cybercommand' && <CyberCommandView onNotify={notify} />}
+              {activeTab === 'alerts' && <AlertsView />}
+              {activeTab === 'reporting' && <ReportingView />}
+              {activeTab === 'campaigns' && <CampaignsView onNotify={notify} />}
+              {activeTab === 'livefeed' && <LiveFeedView onSelectFelon={setSelectedFelon} />}
+            </main>
+          </section>
         </div>
 
-        {/* Dynamic View Rendering based on activeTab */}
-        <main className="flex-1 w-full p-2 sm:p-3 pt-2 flex flex-col lg:flex-row gap-3 overflow-y-auto lg:overflow-hidden relative min-h-0">
-          
-          {activeTab === 'dashboard' && (
-            <>
-              <MetricsOverview />
-              <TacticalMap 
-                selectedCamera={selectedCamera}
-                onSelectCamera={setSelectedCamera}
-                onSelectAudioIntercept={(audio) => {
-                  setSelectedAudioIntercept(audio);
-                  setIsAudioOpen(audio);
-                }}
-                activeAudioIntercept={selectedAudioIntercept}
-                onCloseAudioIntercept={() => setSelectedAudioIntercept(null)}
-                onSelectTarget={(target) => setSelectedFelon({ name: target.title || target.name })}
-              />
-              <LiveFeedPanel onSelectFelon={setSelectedFelon} />
-            </>
-          )}
-
-          {activeTab === 'surveillance' && (
-            <SurveillanceView onSelectFelon={setSelectedFelon} />
-          )}
-
-          {activeTab === 'alerts' && (
-            <AlertsView />
-          )}
-
-          {activeTab === 'reporting' && (
-            <ReportingView />
-          )}
-
-          {activeTab === 'campaigns' && (
-            <CampaignsView />
-          )}
-
-          {activeTab === 'livefeed' && (
-            <LiveFeedView onSelectFelon={setSelectedFelon} />
-          )}
-
-        </main>
-
-        {/* Felon Dossier Modal Overlay */}
-        {selectedFelon && (
-          <FelonModal 
-            felon={selectedFelon} 
-            onClose={() => setSelectedFelon(null)} 
-          />
-        )}
-
-        {/* Command Palette Modal Overlay */}
+        {selectedFelon && <FelonModal felon={selectedFelon} onClose={() => setSelectedFelon(null)} />}
         <CommandPalette
           isOpen={isCmdPaletteOpen}
           onClose={setIsCmdPaletteOpen}
@@ -254,49 +336,29 @@ export default function App() {
           setTheme={setTheme}
           isMuted={mutedState}
           onToggleMute={handleToggleMute}
-          onSelectTarget={(target) => setSelectedFelon(target)}
+          onSelectTarget={setSelectedFelon}
         />
-
-        {/* Intelligence Network Graph Modal */}
-        <IntelligenceGraphModal
-          isOpen={isGraphOpen}
-          onClose={() => setIsGraphOpen(false)}
-          onSelectTarget={(target) => setSelectedFelon(target)}
-        />
-
-        {/* Audio Intercept Waveform & Transcriber Modal */}
-        {isAudioOpen && (
-          <AudioInterceptModal
-            intercept={isAudioOpen}
-            onClose={() => setIsAudioOpen(null)}
-          />
-        )}
-
-        {/* Dispatch Simulator Modal */}
-        <DispatchSimulatorModal
-          isOpen={isDispatchOpen}
-          onClose={() => setIsDispatchOpen(false)}
-        />
-
-        {/* Cyber Terminal CLI */}
+        <IntelligenceGraphModal isOpen={isGraphOpen} onClose={() => setIsGraphOpen(false)} onSelectTarget={setSelectedFelon} />
+        {isAudioOpen && <AudioInterceptModal intercept={isAudioOpen} onClose={() => setIsAudioOpen(null)} />}
+        <DispatchSimulatorModal isOpen={isDispatchOpen} onClose={() => setIsDispatchOpen(false)} />
         <CyberTerminal
           isOpen={isTerminalOpen}
           onClose={() => setIsTerminalOpen(false)}
           setActiveTab={setActiveTab}
           setTheme={setTheme}
-          onSelectTarget={(target) => setSelectedFelon(target)}
+          onSelectTarget={setSelectedFelon}
           onOpenGraph={() => setIsGraphOpen(true)}
           onOpenDispatch={() => setIsDispatchOpen(true)}
         />
+        <DossierPdfModal isOpen={isPdfOpen} onClose={() => setIsPdfOpen(false)} />
 
-        {/* Printable Dossier PDF Modal */}
-        <DossierPdfModal
-          isOpen={isPdfOpen}
-          onClose={() => setIsPdfOpen(false)}
-        />
-
+        {toast && (
+          <div className={`fixed bottom-5 left-1/2 z-[80] flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center gap-3 rounded-xl border bg-[#0d131c] px-4 py-3 text-xs shadow-2xl ${toast.type === 'warning' ? 'border-amber-400/30 text-amber-200' : 'border-emerald-400/25 text-emerald-200'}`} role="status" aria-live="polite">
+            {toast.type === 'warning' ? <AlertTriangle className="h-4 w-4 shrink-0" /> : <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />}
+            <span>{toast.message}</span>
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

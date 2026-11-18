@@ -52,7 +52,7 @@ export function playClick() {
 
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.04);
-  } catch (e) {
+  } catch {
     // Ignore audio context autoplay restrictions
   }
 }
@@ -79,7 +79,7 @@ export function playBeep() {
 
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.07);
-  } catch (e) {}
+  } catch {}
 }
 
 // Threat Alert Siren Sweep
@@ -105,7 +105,7 @@ export function playAlarm() {
 
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.25);
-  } catch (e) {}
+  } catch {}
 }
 
 // Radio Static Burst
@@ -140,5 +140,5 @@ export function playRadioStatic() {
     gain.connect(ctx.destination);
 
     whiteNoise.start(ctx.currentTime);
-  } catch (e) {}
+  } catch {}
 }

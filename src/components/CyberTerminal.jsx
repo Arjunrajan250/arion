@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Terminal, X, ChevronRight, CornerDownLeft } from 'lucide-react';
 import { playClick, playBeep } from '../utils/soundEngine';
 
-export default function CyberTerminal({ 
-  isOpen, 
-  onClose, 
-  setActiveTab, 
-  setTheme, 
+export default function CyberTerminal({
+  isOpen,
+  onClose,
+  setActiveTab,
+  setTheme,
   onSelectTarget,
   onOpenGraph,
-  onOpenDispatch 
+  onOpenDispatch
 }) {
   const [inputVal, setInputVal] = useState('');
   const [history, setHistory] = useState([
@@ -41,16 +41,22 @@ export default function CyberTerminal({
 
     switch (mainCmd) {
       case 'help':
-        newHistory.push({ 
-          type: 'system', 
-          text: 'Available Commands:\n - view <dashboard|surveillance|alerts|reporting|campaigns>\n - target <name>\n - theme <midnight|amber|stealth|crimson>\n - dispatch\n - graph\n - clear' 
+        newHistory.push({
+          type: 'system',
+          text: 'Available Commands:\n - view <dashboard|surveillance|cybercommand|livefeed|alerts|reporting|campaigns>\n - target <alnami|elena|marcus|david>\n - theme <cyberhud|cybercrime|cyan|vintage|amber>\n - dispatch\n - graph\n - clear'
         });
         break;
 
       case 'view':
+        const validViews = ['dashboard', 'surveillance', 'cybercommand', 'livefeed', 'alerts', 'reporting', 'campaigns'];
         if (parts[1]) {
-          setActiveTab(parts[1]);
-          newHistory.push({ type: 'success', text: `Switched active view to: ${parts[1]}` });
+          const tab = parts[1] === 'i4c' || parts[1] === 'cyber' ? 'cybercommand' : parts[1];
+          if (validViews.includes(tab)) {
+            setActiveTab(tab);
+            newHistory.push({ type: 'success', text: `Switched active view to: ${tab}` });
+          } else {
+            newHistory.push({ type: 'error', text: `Unknown view: ${tab}. Type "help" for available views.` });
+          }
         } else {
           newHistory.push({ type: 'error', text: 'Usage: view <tab_name>' });
         }
@@ -67,11 +73,13 @@ export default function CyberTerminal({
         break;
 
       case 'theme':
-        if (parts[1]) {
+        if (['cyberhud', 'cybercrime', 'cyan', 'vintage', 'amber'].includes(parts[1])) {
           setTheme(parts[1]);
           newHistory.push({ type: 'success', text: `Changed HUD theme to: ${parts[1]}` });
+        } else if (parts[1]) {
+          newHistory.push({ type: 'error', text: `Unknown theme: ${parts[1]}. Type "help" for available themes.` });
         } else {
-          newHistory.push({ type: 'error', text: 'Usage: theme <midnight|amber|stealth|crimson>' });
+          newHistory.push({ type: 'error', text: 'Usage: theme <cyberhud|cybercrime|cyan|vintage|amber>' });
         }
         break;
 
@@ -100,7 +108,7 @@ export default function CyberTerminal({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#07090d]/95 border-t-2 border-cyan-500/80 shadow-[0_-10px_30px_rgba(0,242,254,0.15)] font-mono text-xs text-slate-100 p-3 flex flex-col gap-2 max-h-64 overflow-hidden backdrop-blur-md">
-      
+
       {/* CLI Header */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-1.5 shrink-0">
         <div className="flex items-center gap-2 text-cyan-400 font-extrabold">

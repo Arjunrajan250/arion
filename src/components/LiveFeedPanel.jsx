@@ -1,55 +1,83 @@
 import React, { useState } from 'react';
-import { Video, Maximize2, Camera, ShieldAlert, AlertTriangle, Eye, CheckCircle2, ChevronRight } from 'lucide-react';
-import { playClick, playBeep } from '../utils/soundEngine';
+import { Video, Eye, ChevronRight } from 'lucide-react';
+import { playClick } from '../utils/soundEngine';
 
 export default function LiveFeedPanel({ onSelectFelon }) {
-  const [activeFilter, setActiveFilter] = useState('felons');
-  const [selectedCam, setSelectedCam] = useState('CCTV-X5');
+  const [selectedCam, setSelectedCam] = useState('NODE-01');
 
-  const cameras = ['CCTV-X5', 'CCTV-X6', 'CCTV-X7', 'CCTV-X8'];
+  const cameras = [
+    { id: 'NODE-01', name: 'Crosswalk Alpha', image: '/assets/cctv_crosswalk_woman.jpg', target: 'Alnami (P-2204-02)' },
+    { id: 'NODE-02', name: '4th St Junction', image: '/assets/cctv_dome_junction.jpg', target: 'Elena Rostova (4783-9A)' },
+    { id: 'NODE-03', name: 'Street Crossway', image: '/assets/cctv_street_targets.jpg', target: 'Lina & Tim' },
+    { id: 'NODE-04', name: 'I4C Command Floor', image: '/assets/cyber_crime_command.jpg', target: 'Syndicate Phoenix' }
+  ];
+
+  const currentCamData = cameras.find(c => c.id === selectedCam) || cameras[0];
 
   const cameraEvents = [
-    { time: '14:32:15', event: 'Target Match: Robert Mitchell (97% Confidence)', level: 'CRITICAL' },
-    { time: '14:31:02', event: 'License Plate Recognized: GTH-8891 (Black SUV)', level: 'HIGH' },
-    { time: '14:28:44', event: 'Perimeter Motion Detected: Zone 4 Entryway', level: 'MEDIUM' },
-    { time: '14:20:10', event: 'Facial Scanner Calibrated: 32 Subjects Processed', level: 'INFO' }
+    { time: '14:33:02', event: 'Biometric Alert: Alnami (98.4% Sync Desync)', level: 'CRITICAL' },
+    { time: '14:32:15', event: 'Optical Match: Elena Rostova (4783-9A Confirmed)', level: 'HIGH' },
+    { time: '14:31:02', event: 'Plate Recognized: DL-01-AB-9012 (Black SUV)', level: 'HIGH' },
+    { time: '14:28:44', event: 'Pose Keypoints Estimated: 17 Joint Mesh Tracked', level: 'INFO' },
   ];
 
   const felons = [
     {
-      id: '1',
-      name: 'Robert Mitchell',
-      mugshot: '/assets/robert_mitchell.png',
-      detectedAt: 'March 31, 2025 - 14:32:15',
-      location: 'Downtown Shopping Center, Camera #A-12',
-      warrant: 'ACTIVE WARRANT',
-      threat: 'HIGH THREAT',
-      matchPct: '97% Match',
+      id: 'target-0',
+      name: 'Alnami (P-2204-02)',
+      mugshot: '/assets/suspect_face_scan.jpg',
+      detectedAt: 'March 28, 2026 - 14:33:02',
+      location: 'Crosswalk Alpha, Node #06',
+      warrant: 'CRITICAL ANOMALY',
+      threat: 'PRIORITY 1',
+      matchPct: '98.4% Match',
       hasInterpol: true,
-      charges: ['Armed Robbery', 'Assault'],
-      address: '247 Oak Street, Apt 3B, Springfield',
-      dob: 'August 15, 1982',
-      height: "6'2\"",
-      weight: '210 lbs',
+      charges: ['Offline Activity Flag', 'Social Sync Failure (1%)', 'Restricted Corridor'],
+      address: 'Metropolitan Sector 6 Crossing',
+      dob: 'April 19, 1995',
+      height: "5'7\"",
+      weight: '128 lbs',
       eyes: 'Brown',
-      hair: 'Black',
-      marks: 'Scar on left cheek, tattoo on right forearm',
-      currentCharges: ['Armed Robbery', 'Assault with Deadly Weapon', 'Grand Theft Auto'],
+      hair: 'Auburn / Brown',
+      marks: 'Neural interface tattoo on left shoulder',
+      currentCharges: ['Biometric Desynchronization', 'Unauthorized Movement In Crosswalk'],
       convictions: [
-        { title: 'Armed Robbery (2018)', duration: '5 years served' },
-        { title: 'Burglary (2015)', duration: '2 years served' },
-        { title: 'Assault (2012)', duration: '18 months probation' }
+        { title: 'Surveillance Evasion (2024)', duration: 'Parole Active' },
+        { title: 'Cybernetics Tampering (2022)', duration: '18 months probation' }
       ]
     },
     {
-      id: '2',
+      id: 'target-1',
+      name: 'Elena Rostova (4783-9A)',
+      mugshot: '/assets/suspect_face_scan.jpg',
+      detectedAt: 'March 28, 2026 - 14:32:15',
+      location: '4th St & Main Junction Pedestrian Grid',
+      warrant: 'SUBJECT CONFIRMED',
+      threat: 'ELEVATED',
+      matchPct: '96.8% Match',
+      hasInterpol: true,
+      charges: ['Espionage', 'Data Infiltration'],
+      address: '4th St Corridor, Sector 4',
+      dob: 'January 12, 1988',
+      height: "5'9\"",
+      weight: '142 lbs',
+      eyes: 'Hazel',
+      hair: 'Brown',
+      marks: 'Scar below right collarbone',
+      currentCharges: ['Corporate Espionage', 'Encrypted Comm Breach'],
+      convictions: [
+        { title: 'Intelligence Breach (2021)', duration: 'Sentenced 4 years' }
+      ]
+    },
+    {
+      id: 'target-2',
       name: 'Marcus Thompson',
       mugshot: '/assets/marcus_thompson.png',
-      detectedAt: 'March 31, 2025 - 14:29:08',
+      detectedAt: 'March 28, 2026 - 14:29:08',
       location: 'Substation 4, Camera #B-04',
       warrant: 'ACTIVE WARRANT',
       threat: 'CRITICAL THREAT',
-      matchPct: '95% Match',
+      matchPct: '95.4% Match',
       hasInterpol: false,
       charges: ['Armed Robbery', 'Assault', '+5'],
       address: '189 Pine Ridge Rd, Metro District',
@@ -66,14 +94,38 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       ]
     },
     {
-      id: '3',
+      id: 'target-3',
+      name: 'Robert Mitchell',
+      mugshot: '/assets/robert_mitchell.png',
+      detectedAt: 'March 28, 2026 - 14:25:10',
+      location: 'Downtown Shopping Center, Node #A-12',
+      warrant: 'ACTIVE WARRANT',
+      threat: 'HIGH THREAT',
+      matchPct: '97.1% Match',
+      hasInterpol: true,
+      charges: ['Armed Robbery', 'Assault'],
+      address: '247 Oak Street, Apt 3B, Springfield',
+      dob: 'August 15, 1982',
+      height: "6'2\"",
+      weight: '210 lbs',
+      eyes: 'Brown',
+      hair: 'Black',
+      marks: 'Scar on left cheek, tattoo on right forearm',
+      currentCharges: ['Armed Robbery', 'Assault with Deadly Weapon'],
+      convictions: [
+        { title: 'Armed Robbery (2018)', duration: '5 years served' },
+        { title: 'Burglary (2015)', duration: '2 years served' }
+      ]
+    },
+    {
+      id: 'target-4',
       name: 'David Richardson',
       mugshot: '/assets/david_richardson.png',
-      detectedAt: 'March 31, 2025 - 14:15:30',
+      detectedAt: 'March 28, 2026 - 14:15:30',
       location: 'Midtown Exchange, Camera #C-09',
       warrant: 'ACTIVE WARRANT',
       threat: 'HIGH THREAT',
-      matchPct: '92% Match',
+      matchPct: '92.3% Match',
       hasInterpol: true,
       charges: ['Cyber Infiltration', 'Extortion'],
       address: '502 Elm Boulevard, Gotham Sector 2',
@@ -87,144 +139,75 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       convictions: [
         { title: 'Assault (2020)', duration: '2 years served' }
       ]
-    },
-    {
-      id: '4',
-      name: 'Dr. Aris Thorne',
-      mugshot: '/assets/robert_mitchell.png',
-      detectedAt: 'March 31, 2025 - 13:58:12',
-      location: 'Central Lab Array, Camera #D-02',
-      warrant: 'INTERPOL NOTICE',
-      threat: 'PRIORITY ALPHA',
-      matchPct: '99% Match',
-      hasInterpol: true,
-      charges: ['Data Theft', 'Sabotage'],
-      address: 'Unknown Facility Location',
-      dob: 'June 04, 1978',
-      height: "6'1\"",
-      weight: '175 lbs',
-      eyes: 'Grey',
-      hair: 'Silver',
-      marks: 'Ocular implant cyberware',
-      currentCharges: ['Corporate Sabotage', 'Espionage'],
-      convictions: [
-        { title: 'Data Infiltration (2021)', duration: 'Sentenced 6 years' }
-      ]
-    },
-    {
-      id: '5',
-      name: 'Helena Vance',
-      mugshot: '/assets/marcus_thompson.png',
-      detectedAt: 'March 31, 2025 - 13:42:00',
-      location: 'Dockyard Pier 12, Camera #E-14',
-      warrant: 'RED NOTICE',
-      threat: 'ELEVATED',
-      matchPct: '89% Match',
-      hasInterpol: true,
-      charges: ['Contraband', 'Smuggling'],
-      address: '77 Harbor Point Quay',
-      dob: 'September 12, 1991',
-      height: "5'8\"",
-      weight: '140 lbs',
-      eyes: 'Green',
-      hair: 'Blonde',
-      marks: 'Dragon tattoo on shoulder',
-      currentCharges: ['Maritime Smuggling', 'Tax Evasion'],
-      convictions: [
-        { title: 'Contraband Traffic (2017)', duration: '3 years served' }
-      ]
-    },
-    {
-      id: '6',
-      name: 'Viktor Reznov',
-      mugshot: '/assets/david_richardson.png',
-      detectedAt: 'March 31, 2025 - 13:10:45',
-      location: 'Expressway Exit 9, Camera #F-01',
-      warrant: 'ACTIVE WARRANT',
-      threat: 'CRITICAL THREAT',
-      matchPct: '94% Match',
-      hasInterpol: false,
-      charges: ['Arms Trafficking', 'Conspiracy'],
-      address: '104 Industrial Zone',
-      dob: 'January 28, 1980',
-      height: "6'3\"",
-      weight: '230 lbs',
-      eyes: 'Blue',
-      hair: 'Shaved',
-      marks: 'Surgical scar on jawline',
-      currentCharges: ['Illegal Firearms Sales', 'Racket'],
-      convictions: [
-        { title: 'Trafficking (2014)', duration: '8 years served' }
-      ]
     }
   ];
 
   return (
-    <div className="w-full lg:w-[320px] xl:w-[350px] flex flex-col gap-2.5 shrink-0 h-auto lg:h-full overflow-y-auto custom-scrollbar select-none bg-[#080a0d] p-3 rounded-2xl border border-slate-800/80 shadow-2xl min-h-[300px] font-sans">
-      
+    <div className="w-full lg:w-[320px] xl:w-[360px] flex flex-col gap-2.5 shrink-0 h-auto lg:h-full overflow-y-auto custom-scrollbar select-none bg-[#07090e]/95 p-3 rounded-2xl border border-slate-800/90 shadow-2xl min-h-[300px] font-sans backdrop-blur-md">
+
       {/* Camera Selection Switcher Bar */}
-      <div className="flex items-center justify-between gap-1 p-1 bg-[#0b0d12] rounded-xl border border-slate-800 shrink-0 font-mono text-[10px]">
+      <div className="flex items-center justify-between gap-1 p-1 bg-[#090e18] rounded-xl border border-slate-800 shrink-0 font-mono text-[10px]">
         {cameras.map((cam) => (
           <button
-            key={cam}
+            key={cam.id}
             onClick={() => {
-              setSelectedCam(cam);
+              setSelectedCam(cam.id);
               playClick();
             }}
             className={`px-2 py-1 rounded-lg font-bold transition-all ${
-              selectedCam === cam 
-                ? 'bg-cyan-500 text-black shadow-sm' 
+              selectedCam === cam.id
+                ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(0,242,254,0.4)]'
                 : 'text-slate-400 hover:text-white bg-slate-900/60'
             }`}
           >
-            {cam}
+            {cam.id}
           </button>
         ))}
       </div>
 
-      {/* CCTV Video Feed Window */}
-      <div className="relative aspect-video rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-xl shrink-0">
+      {/* CCTV Video Feed Window with Real Image */}
+      <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-slate-800 bg-slate-950 shadow-xl shrink-0">
         <img
-          src="/assets/cctv_feed.png"
-          alt="Live Surveillance Feed"
-          className="w-full h-full object-cover opacity-85"
+          src={currentCamData.image}
+          alt={currentCamData.name}
+          className="w-full h-full object-cover"
         />
 
         {/* Live Indicator */}
-        <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-slate-800 font-mono text-[9px] font-bold text-red-400 flex items-center gap-1.5">
+        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/85 border border-slate-800 font-mono text-[9px] font-bold text-red-400 flex items-center gap-1.5 shadow">
           <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-          <span>LIVE • {selectedCam}</span>
+          <span>LIVE • {currentCamData.id}</span>
         </div>
 
         {/* Real-time Facial Tracking Box */}
-        <div className="absolute top-[25%] left-[42%] w-12 h-12 border-2 border-cyan-400 rounded-sm shadow-[0_0_15px_rgba(0,242,254,0.6)] animate-pulse flex flex-col justify-between p-0.5">
+        <div className="absolute top-[28%] left-[43%] w-14 h-16 border-2 border-cyan-400 rounded-sm shadow-[0_0_18px_rgba(0,242,254,0.7)] animate-pulse flex flex-col justify-between p-0.5 pointer-events-none">
           <div className="flex justify-between">
             <div className="w-1.5 h-1.5 border-t-2 border-l-2 border-cyan-300" />
             <div className="w-1.5 h-1.5 border-t-2 border-r-2 border-cyan-300" />
           </div>
+          <span className="text-[7.5px] font-mono text-cyan-300 bg-black/80 px-0.5 rounded self-center">
+            LOCK
+          </span>
           <div className="flex justify-between">
             <div className="w-1.5 h-1.5 border-b-2 border-l-2 border-cyan-300" />
             <div className="w-1.5 h-1.5 border-b-2 border-r-2 border-cyan-300" />
           </div>
         </div>
 
-        {/* Expand Button */}
-        <button 
-          onClick={() => playBeep()}
-          className="absolute top-2 right-2 p-1 rounded-md bg-slate-950/80 border border-slate-700 text-slate-300 hover:text-white transition-colors"
-        >
-          <Maximize2 className="w-3 h-3" />
-        </button>
+        {/* Target name caption */}
+        <div className="absolute bottom-1.5 inset-x-2 px-2 py-0.5 rounded bg-black/80 font-mono text-[9.5px] text-cyan-300 font-bold truncate border border-slate-800">
+          Target: {currentCamData.target}
+        </div>
       </div>
 
       {/* Real-Time Camera Event Ticker Log */}
-      <div className="p-2 rounded-xl bg-[#0b0e14] border border-slate-800/80 flex flex-col gap-1 shrink-0 shadow-inner font-mono text-[10px]">
-        <div className="flex items-center justify-between text-cyan-400 font-bold border-b border-slate-800/80 pb-1">
+      <div className="p-2.5 rounded-xl bg-[#080d16] border border-slate-800 flex flex-col gap-1 shrink-0 shadow-inner font-mono text-[10px]">
+        <div className="flex items-center justify-between text-cyan-400 font-bold border-b border-slate-800 pb-1">
           <div className="flex items-center gap-1.5">
             <Eye className="w-3.5 h-3.5" />
-            <span>REAL-TIME CAMERA LOGS</span>
+            <span>REAL-TIME BIOMETRIC LOGS</span>
           </div>
-          <span className="text-[9px] text-emerald-400 font-bold">SCANNING</span>
+          <span className="text-[9px] text-emerald-400 font-bold">RADAR-SYNC</span>
         </div>
 
         <div className="space-y-1 max-h-20 overflow-y-auto pr-1 custom-scrollbar">
@@ -243,56 +226,37 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       </div>
 
       {/* Suspects & Felons List Container - Scrollable */}
-      <div className="flex-1 min-h-[280px] bg-[#0b0d11] border border-slate-800/80 rounded-xl p-2.5 flex flex-col gap-2 overflow-hidden shadow-xl">
-        
+      <div className="flex-1 min-h-[260px] bg-[#070b14] border border-slate-800 rounded-xl p-2.5 flex flex-col gap-2 overflow-hidden shadow-xl">
+
         {/* Section Header */}
         <div className="flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <div className="p-1 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-600/40 shrink-0">
+            <div className="p-1 rounded bg-cyan-950 text-cyan-400 border border-cyan-500/40 shrink-0">
               <Video className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold text-slate-200 tracking-tight font-sans">
-              Detected Targets in <span className="text-cyan-400 italic font-mono">{selectedCam}</span>
+              Detected Targets in Sector
             </span>
           </div>
           <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/50">
-            6 PROFILES
+            {felons.length} PROFILES
           </span>
-        </div>
-
-        {/* Event Filter Pills */}
-        <div className="flex items-center gap-1 overflow-x-auto text-[10px] font-mono shrink-0 no-scrollbar">
-          {['felons', 'anomalies', 'accidents', 'all'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => {
-                setActiveFilter(filter);
-                playBeep();
-              }}
-              className={`px-2.5 py-0.5 rounded capitalize shrink-0 font-bold transition-all ${
-                activeFilter === filter
-                  ? 'bg-teal-600 text-white shadow'
-                  : 'bg-[#14161c] text-slate-400 hover:text-slate-200 border border-slate-800'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
         </div>
 
         {/* Scrollable Felons List */}
         <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 pr-1 custom-scrollbar">
           {felons.map((felon) => (
-            <div
+            <button
+              type="button"
               key={felon.id}
               onClick={() => {
                 playClick();
-                onSelectFelon(felon);
+                if (onSelectFelon) onSelectFelon(felon);
               }}
-              className="p-2 rounded-lg bg-[#12141a] border border-slate-800/80 flex gap-2.5 items-center cursor-pointer hover:border-teal-500/60 hover:bg-slate-900/60 transition-all group shadow-sm"
+              className="w-full text-left p-2 rounded-xl bg-[#0b101e] border border-slate-800 flex gap-2.5 items-center hover:border-cyan-400 hover:bg-[#0e162a] transition-all group shadow-sm"
             >
               {/* Mugshot Image */}
-              <div className="w-12 h-14 rounded-md overflow-hidden border border-slate-700 bg-slate-950 shrink-0">
+              <div className="w-12 h-14 rounded-lg overflow-hidden border border-slate-700 bg-slate-950 shrink-0">
                 <img
                   src={felon.mugshot}
                   alt={felon.name}
@@ -301,47 +265,38 @@ export default function LiveFeedPanel({ onSelectFelon }) {
               </div>
 
               {/* Suspect Meta */}
-              <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                
-                {/* Header Row: Name & Active Badge */}
+              <div className="flex flex-col gap-0.5 min-w-0 flex-1 font-mono">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-100 text-xs font-sans truncate group-hover:text-cyan-400 transition-colors">
+                  <span className="font-extrabold text-slate-100 text-xs truncate group-hover:text-cyan-300 transition-colors">
                     {felon.name}
                   </span>
-                  <span className="px-1.5 py-0.2 text-[8px] font-mono font-bold rounded bg-red-950 text-red-400 border border-red-700/50">
+                  <span className="px-1.5 py-0.2 text-[8px] font-bold rounded bg-red-950 text-red-400 border border-red-700/50">
                     {felon.threat}
                   </span>
                 </div>
 
-                <div className="text-[9px] text-slate-400 font-mono">
+                <div className="text-[9px] text-slate-400">
                   {felon.detectedAt}
                 </div>
 
                 {/* Offenses Pills */}
-                <div className="flex items-center gap-1 flex-wrap">
-                  {felon.hasInterpol && (
-                    <span className="px-1 py-0.2 text-[8px] font-mono font-bold rounded bg-blue-600 text-white">
-                      INTERPOL
-                    </span>
-                  )}
-                  {felon.charges.map((ch, idx) => (
+                <div className="flex items-center gap-1 flex-wrap pt-0.5">
+                  <span className="px-1 py-0.2 text-[8px] font-bold rounded bg-cyan-950 text-cyan-300 border border-cyan-800/50">
+                    {felon.matchPct}
+                  </span>
+                  {felon.charges.slice(0, 2).map((ch, idx) => (
                     <span
                       key={idx}
-                      className="px-1 py-0.2 text-[8px] font-mono font-bold rounded bg-red-950 text-red-400 border border-red-800/40"
+                      className="px-1 py-0.2 text-[8px] font-bold rounded bg-red-950/80 text-red-300 border border-red-800/40 truncate max-w-[120px]"
                     >
                       {ch}
                     </span>
                   ))}
                 </div>
-
-                <div className="text-[9px] text-slate-400 font-mono truncate pt-0.5">
-                  {felon.location}
-                </div>
-
               </div>
 
               <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-cyan-400 transition-colors shrink-0" />
-            </div>
+            </button>
           ))}
         </div>
 

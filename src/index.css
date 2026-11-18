@@ -38,13 +38,148 @@
   padding: 0;
 }
 
+html {
+  color-scheme: dark;
+  background: var(--bg-dark);
+}
+
 body {
   background-color: var(--bg-dark);
   color: var(--text-main);
   font-family: var(--font-sans);
-  overflow-x: hidden;
+  overflow: hidden;
   min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+::selection {
+  color: #ecfeff;
+  background: rgba(6, 182, 212, 0.35);
+}
+
+:focus-visible {
+  outline: 2px solid var(--theme-accent, #22d3ee);
+  outline-offset: 3px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.view-enter {
+  animation: viewEnter 180ms ease-out;
+}
+
+@keyframes viewEnter {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media print {
+  @page { margin: 14mm; }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #printable-dossier,
+  #printable-dossier * {
+    visibility: visible !important;
+  }
+
+  #printable-dossier {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    color: #172033;
+    background: #fff;
+  }
+
+  #printable-dossier *:not(img) {
+    color: #172033 !important;
+    border-color: #cbd5e1 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  #printable-dossier > div:first-child {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .view-enter {
+    animation: none;
+  }
+}
+
+.app-shell .text-cyan-300,
+.app-shell .text-cyan-400,
+.app-shell .text-cyan-500 {
+  color: var(--theme-accent);
+}
+
+.app-shell .bg-cyan-400,
+.app-shell .bg-cyan-500 {
+  background-color: var(--theme-accent);
+}
+
+.app-shell .border-cyan-400,
+.app-shell .border-cyan-500 {
+  border-color: color-mix(in srgb, var(--theme-accent) 55%, transparent);
+}
+
+.app-shell ::selection {
+  background: color-mix(in srgb, var(--theme-accent) 40%, transparent);
 }
 
 /* Custom Scrollbars */
@@ -132,5 +267,18 @@ body {
 
 .animate-pulse-glow {
   animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+.animate-scanline {
+  animation: scanline 2.8s linear infinite;
+}
+
+.text-glow-green {
+  text-shadow: 0 0 10px rgba(0, 255, 102, 0.7), 0 0 20px rgba(0, 255, 102, 0.4);
+}
+
+.hud-border-green {
+  border-color: rgba(0, 255, 102, 0.4);
+  box-shadow: inset 0 0 12px rgba(0, 255, 102, 0.08), 0 0 15px rgba(0, 255, 102, 0.2);
 }
 

@@ -1,15 +1,56 @@
-import React, { useState } from 'react';
-import { 
-  Bell, Shield, ChevronDown, User, Settings, LogOut, Volume2, VolumeX, 
-  Command, Palette, Mic, MicOff, Terminal, Share2, ShieldAlert, FileText,
-  LayoutGrid, Target, Eye, Radio, Activity, Cpu, Lock, RadioReceiver
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  AudioLines,
+  Bell,
+  Check,
+  ChevronDown,
+  Command,
+  FileText,
+  Lock,
+  Mic,
+  MicOff,
+  Network,
+  Palette,
+  RadioTower,
+  Search,
+  Terminal,
+  User,
+  Volume2,
+  VolumeX,
+  Wrench,
+  X,
 } from 'lucide-react';
-import { playClick, playBeep } from '../utils/soundEngine';
+import { playClick } from '../utils/soundEngine';
 
-export default function Header({ 
-  activeTab, 
-  setActiveTab, 
-  alertCount = 54, 
+const themes = [
+  { id: 'cyberhud', label: 'Sentinel green', color: '#34d399' },
+  { id: 'cybercrime', label: 'Crimson alert', color: '#f87171' },
+  { id: 'cyan', label: 'Arctic cyan', color: '#22d3ee' },
+  { id: 'vintage', label: 'Steel blue', color: '#60a5fa' },
+  { id: 'amber', label: 'Thermal amber', color: '#fbbf24' },
+];
+
+function IconButton({ label, onClick, active = false, children, className = '' }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
+        active
+          ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-300'
+          : 'border-transparent text-slate-400 hover:border-white/[0.08] hover:bg-white/[0.05] hover:text-slate-100'
+      } ${className}`}
+      aria-label={label}
+      title={label}
+    >
+      {children}
+    </button>
+  );
+}
+
+export default function Header({
+  setActiveTab,
+  alertCount = 8,
   onToggleSplash,
   onOpenCmdPalette,
   isMuted,
@@ -21,368 +62,188 @@ export default function Header({
   onOpenTerminal,
   onOpenGraph,
   onOpenDispatch,
-  onOpenPdf
+  onOpenAudio,
+  onOpenPdf,
+  onOpenProfile,
 }) {
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
+  const headerRef = useRef(null);
 
-  const navTabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
-    { id: 'campaigns', label: 'Campaigns', icon: Target },
-    { id: 'surveillance', label: 'Surveillance', icon: Eye },
-    { id: 'reporting', label: 'Reporting', icon: FileText },
-    { id: 'alerts', label: 'Alerts', icon: Bell, hasBadge: true },
-    { id: 'livefeed', label: 'Live Feed', icon: Radio },
-  ];
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) setOpenMenu(null);
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setOpenMenu(null);
+    };
+    document.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
-  const handleTabClick = (tabId) => {
-    playBeep();
-    setActiveTab(tabId);
+  const toggleMenu = (menu) => {
+    playClick();
+    setOpenMenu((current) => (current === menu ? null : menu));
   };
 
+  const runAction = (action) => {
+    playClick();
+    setOpenMenu(null);
+    action?.();
+  };
+
+  const tools = [
+    { label: 'Dispatch response unit', description: 'Deploy a tactical response team', icon: RadioTower, action: onOpenDispatch },
+    { label: 'Intelligence graph', description: 'Explore linked targets and signals', icon: Network, action: onOpenGraph },
+    { label: 'Cyber terminal', description: 'Open the ARION command line', icon: Terminal, action: onOpenTerminal },
+    { label: 'Dossier preview', description: 'Review and print a classified report', icon: FileText, action: onOpenPdf },
+    { label: 'Intercept transcript lab', description: 'Review a simulated decoded transmission', icon: AudioLines, action: onOpenAudio },
+    { label: isVoiceActive ? 'Disable voice control' : 'Enable voice control', description: 'Hands-free console navigation', icon: isVoiceActive ? Mic : MicOff, action: onToggleVoice },
+  ];
+
   return (
-    <header className="w-full bg-[#05080e]/95 backdrop-blur-xl border-b border-cyan-500/25 px-4 sm:px-6 md:px-8 py-2.5 sm:py-3.5 flex items-center justify-between z-40 shrink-0 shadow-[0_12px_40px_rgba(0,0,0,0.85)] min-h-[64px] sm:min-h-[76px] gap-3 sm:gap-6 relative">
-      
-      {/* Top Ambient Glow Hairline */}
-      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent pointer-events-none" />
+    <header ref={headerRef} className="relative z-40 flex h-[68px] shrink-0 items-center gap-3 border-b border-white/[0.07] bg-[#080c13]/95 px-3 backdrop-blur-xl sm:px-5 lg:px-6">
+      <button
+        type="button"
+        onClick={() => runAction(() => setActiveTab('dashboard'))}
+        className="group flex shrink-0 items-center gap-3 rounded-lg text-left"
+        aria-label="Go to ARION overview"
+      >
+        <span className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-cyan-400/25 bg-cyan-400/[0.08] text-cyan-300 transition-colors group-hover:border-cyan-400/50">
+          <svg viewBox="0 0 40 24" className="h-4 w-7 fill-current" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2.5" />
+            <circle cx="25" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2.5" />
+          </svg>
+        </span>
+        <span className="hidden sm:block">
+          <span className="block text-[15px] font-bold tracking-[0.22em] text-slate-100">ARION</span>
+          <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.13em] text-slate-600">Intelligence OS</span>
+        </span>
+      </button>
 
-      {/* Left Section: Insignia & Brand */}
-      <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-        
-        {/* Logo Insignia */}
-        <div 
-          onClick={() => {
-            playClick();
-            onToggleSplash();
-          }}
-          className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer group shrink-0 select-none"
-          title="ARION Tactical Command Center"
-        >
-          <div className="relative flex items-center justify-center p-2 sm:p-2.5 rounded-xl bg-gradient-to-br from-cyan-950 via-slate-900 to-slate-950 border border-cyan-500/60 group-hover:border-cyan-400 group-hover:shadow-[0_0_25px_rgba(0,242,254,0.55)] transition-all duration-300">
-            <svg viewBox="0 0 40 24" className="w-6 h-4 sm:w-7 sm:h-5 text-cyan-400 fill-current drop-shadow-[0_0_12px_rgba(0,242,254,0.9)]">
-              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2.8" />
-              <circle cx="24" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2.8" />
-            </svg>
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-cyan-400 animate-ping opacity-75" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-cyan-300 shadow-[0_0_10px_#00f2fe]" />
-          </div>
-
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="text-base sm:text-lg font-black font-mono tracking-[0.2em] sm:tracking-[0.25em] text-white group-hover:text-cyan-300 transition-colors leading-none text-glow-cyan">
-                ARION
-              </span>
-              <span className="px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400">
-                v4.8
-              </span>
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-widest text-slate-400 uppercase mt-0.5 sm:mt-1 hidden xs:flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              TACTICAL COMMAND OS
-            </span>
-          </div>
-        </div>
-
+      <div className="mx-2 hidden h-7 w-px bg-white/[0.07] md:block" />
+      <div className="hidden min-w-0 md:block">
+        <p className="truncate text-sm font-medium text-slate-300">City operations center</p>
+        <p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-slate-600">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          Secure channel · Sector HJ-66
+        </p>
       </div>
 
-      {/* Center Section: Tactical Segmented Navigation Deck (Scrollable on mobile) */}
-      <nav className="flex items-center p-1 sm:p-1.5 rounded-2xl bg-[#090d16]/95 border border-slate-700/70 shadow-[inset_0_2px_10px_rgba(0,0,0,0.85)] backdrop-blur-md shrink flex-nowrap overflow-x-auto no-scrollbar gap-1 sm:gap-2 max-w-[50vw] sm:max-w-none">
-        {navTabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          const IconComponent = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.id)}
-              className={`relative px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-mono font-bold tracking-tight transition-all duration-200 flex items-center gap-1.5 sm:gap-2.5 whitespace-nowrap shrink-0 ${
-                isActive
-                  ? 'text-cyan-200 bg-gradient-to-r from-cyan-950/90 via-[#0c233c] to-slate-900 border border-cyan-400/70 shadow-[0_0_20px_rgba(0,242,254,0.35)] font-extrabold'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 border border-transparent'
-              }`}
-            >
-              <IconComponent className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 transition-transform duration-200 ${isActive ? 'text-cyan-400 scale-110 drop-shadow-[0_0_8px_rgba(0,242,254,0.85)]' : 'text-slate-400 group-hover:text-slate-200'}`} />
-              <span className="hidden xs:inline sm:inline">{tab.label}</span>
-              <span className="xs:hidden">{tab.label.slice(0, 4)}</span>
-              
-              {tab.id === 'alerts' && (
-                <span className="px-1.5 sm:px-2 py-0.2 sm:py-0.5 text-[9px] sm:text-[10px] font-mono font-black rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.7)] animate-pulse">
-                  {alertCount}
-                </span>
-              )}
-
-              {isActive && (
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 sm:w-8 h-[2px] sm:h-[2.5px] bg-cyan-400 rounded-full shadow-[0_0_14px_#00f2fe]" />
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Right Section: Grouped Tactical Action Docks & Profile */}
-      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 font-mono text-xs">
-
-        {/* Intelligence Dock (Hidden on small mobile, accessible via mobile menu) */}
-        <div className="hidden md:flex items-center p-1.5 rounded-xl bg-slate-900/90 border border-slate-800 gap-1.5 shadow-sm">
-          {/* Voice AI */}
-          <button
-            onClick={() => {
-              playClick();
-              if (onToggleVoice) onToggleVoice();
-            }}
-            className={`p-2 rounded-lg transition-all duration-200 ${
-              isVoiceActive 
-                ? 'bg-red-950 border border-red-500 text-red-400 animate-pulse shadow-[0_0_14px_rgba(239,68,68,0.5)]' 
-                : 'text-slate-400 hover:text-cyan-300 hover:bg-slate-800'
-            }`}
-            title="Toggle Voice Assistant AI"
-          >
-            {isVoiceActive ? <Mic className="w-4 h-4 text-red-400" /> : <MicOff className="w-4 h-4" />}
-          </button>
-
-          {/* Cyber CLI */}
-          <button
-            onClick={() => {
-              playClick();
-              if (onOpenTerminal) onOpenTerminal();
-            }}
-            className="p-2 rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-slate-800 transition-all"
-            title="Open Cyber Terminal CLI"
-          >
-            <Terminal className="w-4 h-4 text-cyan-400" />
-          </button>
-
-          {/* Intel Graph */}
-          <button
-            onClick={() => {
-              playClick();
-              if (onOpenGraph) onOpenGraph();
-            }}
-            className="p-2 rounded-lg text-slate-400 hover:text-purple-300 hover:bg-slate-800 transition-all"
-            title="Open Intelligence Network Graph"
-          >
-            <Share2 className="w-4 h-4 text-purple-400" />
-          </button>
-        </div>
-
-        {/* Action Dock (Main actions visible) */}
-        <div className="flex items-center p-1 sm:p-1.5 rounded-xl bg-slate-900/90 border border-slate-800 gap-1 sm:gap-1.5 shadow-sm">
-          {/* Dispatch Simulator */}
-          <button
-            onClick={() => {
-              playClick();
-              if (onOpenDispatch) onOpenDispatch();
-            }}
-            className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-red-300 hover:bg-slate-800 transition-all"
-            title="Dispatch Console"
-          >
-            <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-400" />
-          </button>
-
-          {/* Export PDF Dossier */}
-          <button
-            onClick={() => {
-              playClick();
-              if (onOpenPdf) onOpenPdf();
-            }}
-            className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-emerald-300 hover:bg-slate-800 transition-all"
-            title="Export Dossier PDF"
-          >
-            <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
-          </button>
-
-          {/* Command Palette */}
-          <button
-            onClick={() => {
-              playClick();
-              if (onOpenCmdPalette) onOpenCmdPalette();
-            }}
-            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all"
-            title="Open Command Palette (Cmd+K)"
-          >
-            <Command className="w-3.5 h-3.5 text-cyan-400" />
-            <kbd className="px-1.5 py-0.5 text-[10px] bg-slate-950 border border-slate-700/80 rounded text-slate-400 font-mono">⌘K</kbd>
-          </button>
-        </div>
-
-        {/* Settings & Theme */}
-        <div className="flex items-center p-1 sm:p-1.5 rounded-xl bg-slate-900/90 border border-slate-800 gap-1 sm:gap-1.5 shadow-sm">
-          <button
-            onClick={() => {
-              if (onToggleMute) onToggleMute();
-              playClick();
-            }}
-            className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
-            title={isMuted ? 'Unmute Audio SFX' : 'Mute Audio SFX'}
-          >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />}
-          </button>
-
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowThemeMenu(!showThemeMenu);
-                playClick();
-              }}
-              className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-slate-800 transition-all"
-              title="Switch Theme"
-            >
-              <Palette className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
-            </button>
-
-            {showThemeMenu && (
-              <div className="absolute right-0 top-12 w-48 p-2 rounded-2xl bg-[#0b0e14]/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl z-50 text-xs font-mono">
-                <div className="px-2 py-1 font-bold text-slate-400 text-[10px] uppercase border-b border-slate-800/80 mb-1 tracking-wider">
-                  HUD Themes
-                </div>
-                {[
-                  { id: 'midnight', label: 'Midnight Cyan' },
-                  { id: 'amber', label: 'Tactical Amber' },
-                  { id: 'stealth', label: 'Stealth Obsidian' },
-                  { id: 'crimson', label: 'Crimson Alert' }
-                ].map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => {
-                      if (setTheme) setTheme(t.id);
-                      setShowThemeMenu(false);
-                      playClick();
-                    }}
-                    className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      currentTheme === t.id ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 shadow-sm' : 'text-slate-300 hover:bg-slate-800/70'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Quick Tools Drawer Toggle */}
+      <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-1.5">
         <button
-          onClick={() => {
-            setShowMobileMenu(!showMobileMenu);
-            playClick();
-          }}
-          className="md:hidden p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-slate-700 text-cyan-400 hover:text-white transition-all"
-          title="Mobile Tools Deck"
+          type="button"
+          onClick={() => runAction(onOpenCmdPalette)}
+          className="mr-1 flex h-9 min-w-0 items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.025] px-2.5 text-slate-500 transition-colors hover:border-cyan-400/25 hover:bg-cyan-400/[0.04] hover:text-slate-300 sm:w-48 lg:w-60"
+          aria-label="Search or open command palette"
         >
-          <Terminal className="w-4 h-4" />
+          <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span className="hidden flex-1 truncate text-left text-xs sm:block">Search command center</span>
+          <kbd className="hidden rounded border border-white/[0.08] bg-black/20 px-1.5 py-0.5 font-mono text-[9px] text-slate-600 lg:block">⌘ K</kbd>
         </button>
 
-        {/* Operator Profile Badge */}
-        <div className="relative shrink-0 pl-1 border-l border-slate-800">
-          <button 
-            onClick={() => {
-              setShowProfileMenu(!showProfileMenu);
-              playClick();
-            }}
-            className="flex items-center gap-2 sm:gap-3 p-1 sm:p-1.5 rounded-xl bg-gradient-to-r from-slate-900 to-cyan-950/50 border border-slate-700/80 hover:border-cyan-500/60 transition-all shadow-md group"
-          >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border-2 border-cyan-400/80 shadow-[0_0_12px_rgba(0,242,254,0.35)] shrink-0">
-              <img
-                src="/assets/robert_mitchell.png"
-                alt="CDR. Mitchell"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="hidden xl:flex flex-col text-left pr-1">
-              <span className="text-xs font-bold text-white font-mono leading-none group-hover:text-cyan-300 transition-colors">
-                CDR. MITCHELL
-              </span>
-              <span className="text-[9px] font-mono text-cyan-400/80 tracking-wider uppercase mt-1">
-                LEVEL 5 CLEARANCE
-              </span>
-            </div>
-          </button>
+        <IconButton label={`Open alerts (${alertCount} active)`} onClick={() => runAction(() => setActiveTab('alerts'))} className="relative hidden sm:flex">
+          <Bell className="h-[18px] w-[18px]" />
+          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-400" />
+        </IconButton>
 
-          {showProfileMenu && (
-            <div className="absolute right-0 top-12 w-52 p-2 rounded-2xl bg-[#0b0e14]/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl z-50 text-xs font-mono">
-              <div className="px-3 py-2 border-b border-slate-800">
-                <div className="font-bold text-white text-xs">Robert Mitchell</div>
-                <div className="text-[10px] text-cyan-400 font-mono">Chief Tactical Officer</div>
+        <IconButton label={isMuted ? 'Unmute interface sounds' : 'Mute interface sounds'} onClick={() => runAction(onToggleMute)} className="hidden xl:flex">
+          {isMuted ? <VolumeX className="h-[18px] w-[18px]" /> : <Volume2 className="h-[18px] w-[18px]" />}
+        </IconButton>
+
+        <IconButton
+          label={isVoiceActive ? 'Disable voice control' : 'Enable voice control'}
+          active={isVoiceActive}
+          onClick={() => runAction(onToggleVoice)}
+          className="hidden xl:flex"
+        >
+          {isVoiceActive ? <Mic className="h-[18px] w-[18px]" /> : <MicOff className="h-[18px] w-[18px]" />}
+        </IconButton>
+
+        <button
+          type="button"
+          onClick={() => runAction(onOpenDispatch)}
+          className="ml-1 hidden h-9 items-center gap-2 rounded-lg bg-cyan-400 px-3.5 text-xs font-semibold text-slate-950 transition-colors hover:bg-cyan-300 md:flex"
+        >
+          <RadioTower className="h-4 w-4" aria-hidden="true" />
+          Dispatch
+        </button>
+
+        <div className="relative">
+          <IconButton label="Open operations tools" active={openMenu === 'tools'} onClick={() => toggleMenu('tools')}>
+            <Wrench className="h-[18px] w-[18px]" />
+          </IconButton>
+          {openMenu === 'tools' && (
+            <div className="absolute right-0 top-12 w-72 rounded-xl border border-white/10 bg-[#0d121c] p-2 shadow-2xl shadow-black/60">
+              <div className="flex items-center justify-between px-2 pb-2 pt-1">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">Operations tools</p>
+                <button type="button" onClick={() => setOpenMenu(null)} className="text-slate-600 hover:text-slate-300" aria-label="Close tools menu"><X className="h-3.5 w-3.5" /></button>
               </div>
-              <div className="p-1 space-y-1 mt-1">
-                <button className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800/80 text-slate-300 flex items-center gap-2">
-                  <User className="w-3.5 h-3.5 text-cyan-400" /> Profile Dossier
-                </button>
-                <button className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800/80 text-slate-300 flex items-center gap-2">
-                  <Settings className="w-3.5 h-3.5 text-slate-400" /> Security System
-                </button>
-                <button className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-red-950/60 text-red-400 flex items-center gap-2">
-                  <LogOut className="w-3.5 h-3.5" /> Lock Console
-                </button>
-              </div>
+              {tools.map((tool) => {
+                const Icon = tool.icon;
+                return (
+                  <button key={tool.label} type="button" onClick={() => runAction(tool.action)} className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-white/[0.05]">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-cyan-400"><Icon className="h-4 w-4" /></span>
+                    <span className="min-w-0">
+                      <span className="block text-xs font-medium text-slate-200">{tool.label}</span>
+                      <span className="mt-0.5 block truncate text-[10px] text-slate-600">{tool.description}</span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-      </div>
-
-      {/* Mobile Tactical Quick Action Floating Drawer */}
-      {showMobileMenu && (
-        <div className="absolute top-[105%] left-3 right-3 p-3 rounded-2xl bg-[#080b12]/98 border border-cyan-500/40 shadow-[0_15px_35px_rgba(0,0,0,0.9)] backdrop-blur-2xl z-50 md:hidden flex flex-col gap-2.5 font-mono text-xs animate-in slide-in-from-top-2">
-          <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-800 text-[10px] text-cyan-400 font-bold tracking-wider">
-            <span>TACTICAL MOBILE TOOLS</span>
-            <button onClick={() => setShowMobileMenu(false)} className="text-slate-400 hover:text-white">✕</button>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => {
-                if (onToggleVoice) onToggleVoice();
-                setShowMobileMenu(false);
-                playClick();
-              }}
-              className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
-                isVoiceActive ? 'bg-red-950 border-red-500 text-red-300' : 'bg-slate-900 border-slate-800 text-slate-300'
-              }`}
-            >
-              <Mic className="w-4 h-4 text-red-400" />
-              <span>Voice AI</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (onOpenTerminal) onOpenTerminal();
-                setShowMobileMenu(false);
-                playClick();
-              }}
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 flex items-center gap-2 font-bold"
-            >
-              <Terminal className="w-4 h-4 text-cyan-400" />
-              <span>Cyber CLI</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (onOpenGraph) onOpenGraph();
-                setShowMobileMenu(false);
-                playClick();
-              }}
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-purple-300 flex items-center gap-2 font-bold"
-            >
-              <Share2 className="w-4 h-4 text-purple-400" />
-              <span>Intel Graph</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (onOpenCmdPalette) onOpenCmdPalette();
-                setShowMobileMenu(false);
-                playClick();
-              }}
-              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white flex items-center gap-2 font-bold"
-            >
-              <Command className="w-4 h-4 text-cyan-400" />
-              <span>Cmd Palette</span>
-            </button>
-          </div>
+        <div className="relative">
+          <IconButton label="Change interface theme" active={openMenu === 'theme'} onClick={() => toggleMenu('theme')}>
+            <Palette className="h-[18px] w-[18px]" />
+          </IconButton>
+          {openMenu === 'theme' && (
+            <div className="absolute right-0 top-12 w-56 rounded-xl border border-white/10 bg-[#0d121c] p-2 shadow-2xl shadow-black/60">
+              <p className="px-2 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">Interface theme</p>
+              {themes.map((theme) => (
+                <button key={theme.id} type="button" onClick={() => runAction(() => setTheme(theme.id))} className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-xs text-slate-300 hover:bg-white/[0.05]">
+                  <span className="h-3 w-3 rounded-full border border-white/20" style={{ backgroundColor: theme.color }} />
+                  <span className="flex-1">{theme.label}</span>
+                  {currentTheme === theme.id && <Check className="h-3.5 w-3.5 text-cyan-400" />}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
+        <div className="relative ml-1 border-l border-white/[0.07] pl-2 sm:pl-3">
+          <button
+            type="button"
+            onClick={() => toggleMenu('profile')}
+            className="flex items-center gap-2 rounded-lg p-1 transition-colors hover:bg-white/[0.04]"
+            aria-label="Open operator menu"
+            aria-expanded={openMenu === 'profile'}
+          >
+            <img src="/assets/robert_mitchell.png" alt="" className="h-8 w-8 rounded-lg border border-white/10 object-cover" />
+            <span className="hidden text-left 2xl:block">
+              <span className="block text-xs font-medium text-slate-200">R. Mitchell</span>
+              <span className="mt-0.5 block text-[9px] text-slate-600">Duty commander</span>
+            </span>
+            <ChevronDown className="hidden h-3.5 w-3.5 text-slate-600 2xl:block" />
+          </button>
+          {openMenu === 'profile' && (
+            <div className="absolute right-0 top-12 w-56 rounded-xl border border-white/10 bg-[#0d121c] p-2 shadow-2xl shadow-black/60">
+              <div className="border-b border-white/[0.07] px-2.5 pb-3 pt-1">
+                <p className="text-sm font-medium text-slate-100">Robert Mitchell</p>
+                <p className="mt-1 text-[10px] text-slate-500">Duty commander · Level 5</p>
+              </div>
+              <button type="button" onClick={() => runAction(onOpenProfile)} className="mt-2 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs text-slate-300 hover:bg-white/[0.05]"><User className="h-4 w-4 text-slate-500" />Operator dossier</button>
+              <button type="button" onClick={() => runAction(onOpenCmdPalette)} className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs text-slate-300 hover:bg-white/[0.05]"><Command className="h-4 w-4 text-slate-500" />Command palette</button>
+              <button type="button" onClick={() => runAction(onToggleSplash)} className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs text-red-300 hover:bg-red-500/10"><Lock className="h-4 w-4" />Lock console</button>
+            </div>
+          )}
+        </div>
+      </div>
     </header>
   );
 }

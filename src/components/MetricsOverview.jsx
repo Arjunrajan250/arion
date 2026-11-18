@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Bell, Target, Search, AlertTriangle, Newspaper, Radio, Cpu, Activity, Signal, Zap } from 'lucide-react';
-import { playClick, playBeep } from '../utils/soundEngine';
+import { Bell, Target, Search, AlertTriangle, Newspaper, Radio, Cpu, Activity } from 'lucide-react';
+import { playBeep } from '../utils/soundEngine';
 
 export default function MetricsOverview() {
-  const [activeTab, setActiveTab] = useState('local');
+  const [activeTab, setActiveTab] = useState('recent');
 
   const metricsData = [
     { label: 'Total Alerts', value: '3,456', color: '#ff556e', icon: Bell, bg: 'bg-red-950/30' },
@@ -81,6 +81,13 @@ export default function MetricsOverview() {
     }
   ];
 
+  const filteredNews = newsItems.filter((item) => {
+    if (activeTab === 'recent') return true;
+    if (activeTab === 'major') return ['CRITICAL', 'ALERT'].includes(item.tag);
+    if (activeTab === 'incidents') return item.tag === 'INCIDENT';
+    return item.tag === activeTab.toUpperCase();
+  });
+
   const radioIntercepts = [
     { freq: '440.25 MHz', source: 'Unit Alpha-1', text: 'Perimeter check clear at Gate 4. Proceeding to Sector 7.' },
     { freq: '890.10 MHz', source: 'Kilo Recon', text: 'Visual contact confirmed on target vehicle. Standby for intercept.' },
@@ -92,13 +99,12 @@ export default function MetricsOverview() {
       
       {/* 2x3 Expanded Metrics Cards Grid */}
       <div className="grid grid-cols-2 gap-2.5 shrink-0 font-mono">
-        {metricsData.map((m, idx) => {
+        {metricsData.map((m) => {
           const IconComp = m.icon;
           return (
-            <div 
-              key={idx} 
-              className="bg-[#0b0e16] border border-slate-800/90 rounded-xl p-2.5 flex flex-col items-center justify-center text-center shadow-md hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(0,242,254,0.15)] transition-all duration-200 cursor-pointer group"
-              onClick={() => playClick()}
+            <div
+              key={m.label}
+              className="bg-[#0b0e16] border border-slate-800/90 rounded-xl p-2.5 flex flex-col items-center justify-center text-center shadow-md hover:border-slate-700 transition-colors"
             >
               <div className={`mb-1 p-1.5 rounded-xl ${m.bg} group-hover:scale-110 transition-transform`} style={{ color: m.color }}>
                 <IconComp className="w-3.5 h-3.5 opacity-90" />
@@ -182,7 +188,7 @@ export default function MetricsOverview() {
               OVERVIEW <span className="text-[#e26e38] font-mono text-[11px] ml-1">SECTOR HJ-66</span>
             </div>
           </div>
-          <span className="text-[9px] text-amber-400 font-bold bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800/60">8 ARTICLES</span>
+          <span className="text-[9px] text-amber-400 font-bold bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800/60">{filteredNews.length} ARTICLES</span>
         </div>
 
         {/* News Filter Pills */}
@@ -194,6 +200,7 @@ export default function MetricsOverview() {
                 setActiveTab(tab);
                 playBeep();
               }}
+              aria-pressed={activeTab === tab}
               className={`px-2.5 py-0.5 rounded-lg capitalize shrink-0 font-bold transition-all ${
                 activeTab === tab
                   ? 'bg-gradient-to-r from-[#a84924] to-[#873719] text-white shadow-sm'
@@ -207,7 +214,7 @@ export default function MetricsOverview() {
 
         {/* Scrollable News Feed List */}
         <div className="flex-1 min-h-0 overflow-y-auto p-2.5 flex flex-col gap-3 custom-scrollbar">
-          {newsItems.map((item) => (
+          {filteredNews.map((item) => (
             <div
               key={item.id}
               className="flex flex-col gap-1.5 pb-2.5 border-b border-slate-800/60 last:border-0 hover:bg-slate-900/40 p-1.5 rounded transition-colors"

@@ -1,417 +1,271 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  Play, Pause, RotateCcw, Globe, Map, ShieldAlert, Crosshair, 
-  Eye, Radio, AlertTriangle, UserCheck, Maximize2, Zap, Info, Volume2
-} from 'lucide-react';
-import { playClick, playBeep, playAlarm } from '../utils/soundEngine';
+import * as am5 from '@amcharts/amcharts5';
+import * as am5map from '@amcharts/amcharts5/map';
+import am5themesAnimated from '@amcharts/amcharts5/themes/Animated';
+import worldLow from '@amcharts/amcharts5-geodata/worldLow';
+import { Globe, Map, Pause, Play, ShieldAlert } from 'lucide-react';
+import { playAlarm, playBeep, playClick } from '../utils/soundEngine';
+
+const TACTICAL_HOTSPOTS = [
+  { id: 'pin-1', title: 'Gotham Central Hub', latitude: 40.7128, longitude: -74.006, status: 'CRITICAL', threat: 'Marcus Thompson detected', commander: 'Alpha-1' },
+  { id: 'pin-2', title: 'London Intercept Outpost', latitude: 51.5074, longitude: -0.1278, status: 'ELEVATED', threat: 'Signal anomaly detected', commander: 'Bravo-4' },
+  { id: 'pin-3', title: 'Tokyo Surveillance Station', latitude: 35.6762, longitude: 139.6503, status: 'SECURE', threat: 'Data relay synchronized', commander: 'Kilo-9' },
+  { id: 'pin-4', title: 'Berlin Relay Grid', latitude: 52.52, longitude: 13.405, status: 'ACTIVE', threat: 'David Richardson tracked', commander: 'Echo-2' },
+];
+
+const TARGET_NODES = [
+  { id: 'T-109', name: 'Marcus Thompson', x: 0.32, y: 0.38, status: 'HOSTILE', color: '#fb7185' },
+  { id: 'T-204', name: 'David Richardson', x: 0.65, y: 0.28, status: 'SURVEILLANCE', color: '#22d3ee' },
+  { id: 'T-308', name: 'Dr. Aris Thorne', x: 0.48, y: 0.62, status: 'INTERCEPT', color: '#fbbf24' },
+  { id: 'T-412', name: 'Northern relay', x: 0.78, y: 0.7, status: 'SECURE', color: '#34d399' },
+];
 
 export default function TacticalMap({ onSelectTarget }) {
   const canvasRef = useRef(null);
   const chartDivRef = useRef(null);
-
   const [showGlobe, setShowGlobe] = useState(true);
-  const [selectedTarget, setSelectedTarget] = useState(null);
   const [activeSignalFilter, setActiveSignalFilter] = useState('ALL');
-  
-  // Interactive Globe Controls State
-  const [isRotating, setIsRotating] = useState(true);
-  const [rotationSpeed, setRotationSpeed] = useState(1.0); // 0.5x, 1x, 2x
+  const [isRotating, setIsRotating] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [rotationSpeed, setRotationSpeed] = useState(1);
   const [is3DMode, setIs3DMode] = useState(true);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
 
-  const chartInstanceRef = useRef(null);
-  const rotationAnimRef = useRef(null);
-
-  // Tactical Pins Dataset
-  const tacticalHotspots = [
-    { id: 'pin-1', title: 'Gotham Central Hub', latitude: 40.7128, longitude: -74.0060, status: 'CRITICAL', threat: 'Marcus Thompson Detected', commander: 'Alpha-1' },
-    { id: 'pin-2', title: 'London Intercept Outpost', latitude: 51.5074, longitude: -0.1278, status: 'ELEVATED', threat: 'Signal Anomaly Detected', commander: 'Bravo-4' },
-    { id: 'pin-3', title: 'Tokyo Surveillance Station', latitude: 35.6762, longitude: 139.6503, status: 'SECURE', threat: 'Data Relay Synchronized', commander: 'Kilo-9' },
-    { id: 'pin-4', title: 'Berlin Relay Grid', latitude: 52.5200, longitude: 13.4050, status: 'ACTIVE', threat: 'David Richardson Tracked', commander: 'Echo-2' },
-  ];
-
-  // amCharts 5 Setup (3D Globe / 2D Flat Map with PointSeries Hotspots)
   useEffect(() => {
-    if (!showGlobe || !chartDivRef.current) return;
+    if (!showGlobe || !chartDivRef.current) return undefined;
 
-    let root;
+    const root = am5.Root.new(chartDivRef.current);
+    root.setThemes([am5themesAnimated.new(root)]);
+    const chart = root.container.children.push(am5map.MapChart.new(root, {
+      panX: is3DMode ? 'rotateX' : 'translateX',
+      panY: is3DMode ? 'rotateY' : 'translateY',
+      projection: is3DMode ? am5map.geoOrthographic() : am5map.geoMercator(),
+      paddingBottom: is3DMode ? 50 : 20,
+      paddingTop: is3DMode ? 50 : 20,
+      paddingLeft: is3DMode ? 50 : 20,
+      paddingRight: is3DMode ? 50 : 20,
+      wheelY: 'zoom',
+    }));
 
-    const initAmCharts = () => {
-      if (!window.am5 || !window.am5map || !window.am5geodata_worldLow) {
-        setTimeout(initAmCharts, 200);
-        return;
-      }
+    const backgroundSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
+    backgroundSeries.mapPolygons.template.setAll({
+      fill: am5.color(0x08121d),
+      fillOpacity: 0.92,
+      stroke: am5.color(0x164e63),
+      strokeOpacity: 0.5,
+      strokeWidth: 1,
+    });
+    backgroundSeries.data.push({ geometry: am5map.getGeoRectangle(90, 180, -90, -180) });
 
-      const am5 = window.am5;
-      const am5map = window.am5map;
-      const am5geodata_worldLow = window.am5geodata_worldLow;
-      const am5themes_Animated = window.am5themes_Animated;
+    const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, { geoJSON: worldLow }));
+    polygonSeries.mapPolygons.template.setAll({
+      fill: am5.color(0x172532),
+      fillOpacity: 0.95,
+      stroke: am5.color(0x245064),
+      strokeWidth: 0.65,
+      tooltipText: '{name}',
+      interactive: true,
+    });
+    polygonSeries.mapPolygons.template.states.create('hover', {
+      fill: am5.color(0x164e63),
+      fillOpacity: 1,
+      stroke: am5.color(0x22d3ee),
+    });
 
-      root = am5.Root.new(chartDivRef.current);
+    const graticuleSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
+    graticuleSeries.mapLines.template.setAll({
+      stroke: am5.color(0x3290a8),
+      strokeOpacity: 0.13,
+      strokeWidth: 0.7,
+    });
 
-      if (root._logo) {
-        root._logo.dispose();
-      }
-
-      root.setThemes([am5themes_Animated.new(root)]);
-
-      // Projection: 3D Orthographic vs 2D GeoMercator
-      const projectionType = is3DMode ? am5map.geoOrthographic() : am5map.geoMercator();
-
-      const chart = root.container.children.push(
-        am5map.MapChart.new(root, {
-          panX: is3DMode ? 'rotateX' : 'translateX',
-          panY: is3DMode ? 'rotateY' : 'translateY',
-          projection: projectionType,
-          paddingBottom: is3DMode ? 60 : 20,
-          paddingTop: is3DMode ? 60 : 20,
-          paddingLeft: is3DMode ? 60 : 20,
-          paddingRight: is3DMode ? 60 : 20
-        })
-      );
-
-      chartInstanceRef.current = chart;
-
-      // Ocean Background Fill
-      const backgroundSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
-      backgroundSeries.mapPolygons.template.setAll({
-        fill: am5.color(0xffffff),
-        fillOpacity: 0.05,
-        stroke: am5.color(0xe2e8f0),
-        strokeOpacity: 0.6,
-        strokeWidth: 1.5
+    const pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+    pointSeries.bullets.push(() => {
+      const circle = am5.Circle.new(root, {
+        radius: 6,
+        tooltipText: '{title} · {status}',
+        fill: am5.color(0x22d3ee),
+        stroke: am5.color(0xecfeff),
+        strokeWidth: 1.5,
+        cursorOverStyle: 'pointer',
       });
-      backgroundSeries.data.push({
-        geometry: am5map.getGeoRectangle(90, 180, -90, -180)
+      circle.events.on('click', (event) => {
+        setSelectedHotspot(event.target.dataItem.dataContext);
+        playAlarm();
       });
+      return am5.Bullet.new(root, { sprite: circle });
+    });
 
-      // Main Country Polygons
-      const polygonSeries = chart.series.push(
-        am5map.MapPolygonSeries.new(root, {
-          geoJSON: am5geodata_worldLow
-        })
-      );
-
-      polygonSeries.mapPolygons.template.setAll({
-        fill: am5.color(0xffffff),
-        fillOpacity: 0.45,
-        stroke: am5.color(0x0f172a),
-        strokeWidth: 0.8,
-        tooltipText: '{name}',
-        toggleKey: 'active',
-        interactive: true
+    TACTICAL_HOTSPOTS.filter((pin) => activeSignalFilter === 'ALL'
+      || (activeSignalFilter === 'HOSTILE' && pin.status === 'CRITICAL')
+      || (activeSignalFilter === 'INTERCEPT' && ['ELEVATED', 'ACTIVE'].includes(pin.status))
+      || pin.status === activeSignalFilter).forEach((pin) => {
+      pointSeries.pushDataItem({
+        geometry: { type: 'Point', coordinates: [pin.longitude, pin.latitude] },
+        ...pin,
       });
+    });
 
-      polygonSeries.mapPolygons.template.states.create('hover', {
-        fill: am5.color(0xf1f5f9),
-        fillOpacity: 1.0,
-        stroke: am5.color(0x94a3b8)
+    if (is3DMode && isRotating) {
+      chart.animate({
+        key: 'rotationX',
+        from: chart.get('rotationX', 0),
+        to: chart.get('rotationX', 0) + 360,
+        duration: 30000 / rotationSpeed,
+        loops: Infinity,
       });
+    }
+    chart.appear(500, 100);
 
-      // Graticule Grid Lines
-      const graticuleSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
-      graticuleSeries.mapLines.template.setAll({
-        stroke: am5.color(0xd1d5db),
-        strokeOpacity: 0.3,
-        strokeWidth: 0.8
-      });
+    return () => root.dispose();
+  }, [showGlobe, is3DMode, isRotating, rotationSpeed, activeSignalFilter]);
 
-      // Tactical PointSeries Target Pins
-      const pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
-      
-      pointSeries.bullets.push(() => {
-        const circle = am5.Circle.new(root, {
-          radius: 6,
-          tooltipText: '{title} [{status}]',
-          fill: am5.color(0x00f2fe),
-          stroke: am5.color(0xffffff),
-          strokeWidth: 2,
-          cursorOverStyle: 'pointer'
-        });
-
-        circle.events.on('click', (ev) => {
-          const dataItem = ev.target.dataItem.dataContext;
-          setSelectedHotspot(dataItem);
-          playAlarm();
-        });
-
-        return am5.Bullet.new(root, {
-          sprite: circle
-        });
-      });
-
-      // Add Pins to PointSeries
-      tacticalHotspots.forEach((pin) => {
-        pointSeries.pushDataItem({
-          geometry: { type: 'Point', coordinates: [pin.longitude, pin.latitude] },
-          title: pin.title,
-          status: pin.status,
-          threat: pin.threat,
-          commander: pin.commander
-        });
-      });
-
-      // Rotation animation setup
-      if (is3DMode && isRotating) {
-        const duration = 30000 / rotationSpeed;
-        rotationAnimRef.current = chart.animate({
-          key: 'rotationX',
-          from: chart.get('rotationX', 0),
-          to: chart.get('rotationX', 0) + 360,
-          duration: duration,
-          loops: Infinity
-        });
-      }
-
-      chart.appear(1000, 100);
-    };
-
-    initAmCharts();
-
-    return () => {
-      if (root) {
-        root.dispose();
-      }
-    };
-  }, [showGlobe, is3DMode, isRotating, rotationSpeed]);
-
-  // Tactical Overlay Canvas (Radar, Nodes, Signals)
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    if (!canvas) return undefined;
+    const context = canvas.getContext('2d');
     let animationId;
     let scanAngle = 0;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let width = 0;
+    let height = 0;
 
     const resize = () => {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
+      const bounds = canvas.parentElement.getBoundingClientRect();
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      width = bounds.width;
+      height = bounds.height;
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
     resize();
-    window.addEventListener('resize', resize);
-
-    const targetNodes = [
-      { id: 'T-109', name: 'Marcus Thompson', x: 0.32, y: 0.38, status: 'HOSTILE', ping: true },
-      { id: 'T-204', name: 'David Richardson', x: 0.65, y: 0.28, status: 'SURVEILLANCE', ping: false },
-      { id: 'T-308', name: 'Dr. Aris Thorne', x: 0.48, y: 0.62, status: 'INTERCEPT', ping: true },
-      { id: 'T-412', name: 'Unknown Signal Alpha', x: 0.78, y: 0.70, status: 'ALERT', ping: false }
-    ];
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas.parentElement);
 
     const drawOverlay = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
+      context.clearRect(0, 0, width, height);
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min(centerX, centerY) * 0.83;
+      scanAngle += 0.012;
 
-      scanAngle += 0.015;
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, Math.min(centerX, centerY) * 0.85, scanAngle, scanAngle + 0.35);
-      ctx.closePath();
-      const grad = ctx.createRadialGradient(0, 0, 10, 0, 0, Math.min(centerX, centerY) * 0.85);
-      grad.addColorStop(0, 'rgba(0, 242, 254, 0.15)');
-      grad.addColorStop(1, 'rgba(0, 242, 254, 0.0)');
-      ctx.fillStyle = grad;
-      ctx.fill();
-      ctx.restore();
+      context.save();
+      context.translate(centerX, centerY);
+      context.beginPath();
+      context.moveTo(0, 0);
+      context.arc(0, 0, radius, scanAngle, scanAngle + 0.28);
+      context.closePath();
+      const gradient = context.createRadialGradient(0, 0, 5, 0, 0, radius);
+      gradient.addColorStop(0, 'rgba(34, 211, 238, 0.12)');
+      gradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
+      context.fillStyle = gradient;
+      context.fill();
+      context.restore();
 
-      targetNodes.forEach(node => {
-        const nx = node.x * canvas.width;
-        const ny = node.y * canvas.height;
-
-        ctx.strokeStyle = node.status === 'HOSTILE' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(0, 242, 254, 0.8)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(nx, ny, 12, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillStyle = node.status === 'HOSTILE' ? '#ef4444' : '#00f2fe';
-        ctx.beginPath();
-        ctx.arc(nx, ny, 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 10px monospace';
-        ctx.fillText(`${node.id}: ${node.name}`, nx + 16, ny + 4);
+      TARGET_NODES.filter((node) => activeSignalFilter === 'ALL' || node.status === activeSignalFilter
+        || (activeSignalFilter === 'HOSTILE' && node.status === 'HOSTILE')
+        || (activeSignalFilter === 'INTERCEPT' && node.status === 'INTERCEPT')).forEach((node) => {
+        const x = node.x * width;
+        const y = node.y * height;
+        context.strokeStyle = node.color;
+        context.globalAlpha = 0.75;
+        context.lineWidth = 1;
+        context.beginPath();
+        context.arc(x, y, 10, 0, Math.PI * 2);
+        context.stroke();
+        context.globalAlpha = 1;
+        context.fillStyle = node.color;
+        context.beginPath();
+        context.arc(x, y, 2.5, 0, Math.PI * 2);
+        context.fill();
+        if (width > 440) {
+          context.fillStyle = 'rgba(226, 232, 240, 0.85)';
+          context.font = '500 10px "JetBrains Mono", monospace';
+          context.fillText(`${node.id} · ${node.name}`, x + 15, y + 3);
+        }
       });
-
-      animationId = requestAnimationFrame(drawOverlay);
+      if (!reduceMotion) animationId = requestAnimationFrame(drawOverlay);
     };
-
     drawOverlay();
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
+      observer.disconnect();
     };
-  }, []);
+  }, [activeSignalFilter, showGlobe]);
 
   return (
-    <div className="relative w-full h-[400px] sm:h-[480px] lg:h-full min-h-[350px] bg-[#07090d] border border-slate-800/80 rounded-xl overflow-hidden flex flex-col shadow-2xl shrink-0 lg:shrink">
-      
-      {/* Map Control Top Bar */}
-      <div className="px-4 py-2 bg-[#0b0e14] border-b border-slate-800 flex items-center justify-between z-20 shrink-0 text-xs font-mono">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-cyan-400 font-bold">
-            <Globe className="w-4 h-4 animate-spin-slow" />
-            <span>GLOBAL RADAR MATRIX</span>
-          </div>
-
-          {/* Signal Filters */}
-          <div className="hidden md:flex items-center gap-1 bg-slate-900/90 p-0.5 rounded border border-slate-800">
-            {['ALL', 'HOSTILE', 'INTERCEPT', 'SECURE'].map(filter => (
+    <section className="relative flex h-[430px] w-full min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#070b11] shadow-xl sm:h-[480px] lg:h-full lg:min-h-[350px] lg:shrink" aria-label="Global radar matrix">
+      <div className="z-20 flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] bg-[#0b1018] px-3 py-2.5 sm:px-4">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+          <Globe className="h-4 w-4 text-cyan-400" aria-hidden="true" />
+          <span>Global radar</span>
+          <span className="rounded bg-emerald-400/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-300">Live</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="order-last flex w-full items-center justify-between gap-0.5 rounded-lg border border-white/[0.07] bg-black/10 p-0.5 sm:order-none sm:w-auto sm:justify-start" aria-label="Filter signals">
+            {['ALL', 'HOSTILE', 'INTERCEPT', 'SECURE'].map((filter) => (
               <button
+                type="button"
                 key={filter}
-                onClick={() => {
-                  setActiveSignalFilter(filter);
-                  playClick();
-                }}
-                className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
-                  activeSignalFilter === filter
-                    ? 'bg-cyan-500 text-black shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+                onClick={() => { setActiveSignalFilter(filter); playClick(); }}
+                aria-pressed={activeSignalFilter === filter}
+                className={`rounded-md px-2 py-1 text-[9px] font-semibold transition-colors ${activeSignalFilter === filter ? 'bg-cyan-400/15 text-cyan-200' : 'text-slate-600 hover:text-slate-300'}`}
               >
                 {filter}
               </button>
             ))}
           </div>
-        </div>
-
-        {/* View Toggle Buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              setShowGlobe(!showGlobe);
-              playBeep();
-            }}
-            className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 hover:border-cyan-500 font-bold transition-all"
-          >
-            {showGlobe ? <Map className="w-3.5 h-3.5 text-cyan-400" /> : <Globe className="w-3.5 h-3.5 text-cyan-400" />}
-            <span>{showGlobe ? 'Flat Map' : '3D Globe'}</span>
+          <button type="button" onClick={() => { setShowGlobe(!showGlobe); playBeep(); }} className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-[10px] font-medium text-slate-300 hover:border-cyan-400/30">
+            {showGlobe ? <Map className="h-3.5 w-3.5 text-cyan-400" /> : <Globe className="h-3.5 w-3.5 text-cyan-400" />}
+            {showGlobe ? 'City grid' : 'World map'}
           </button>
         </div>
       </div>
 
-      {/* Main Rendering Viewport */}
-      <div className="relative flex-1 w-full h-full min-h-0 bg-[#05070a] overflow-hidden">
-        
-        {/* amCharts 5 Canvas Container */}
+      <div className="relative min-h-0 flex-1 overflow-hidden bg-[#05090e]">
         {showGlobe ? (
-          <div ref={chartDivRef} className="w-full h-full relative z-10" />
+          <div ref={chartDivRef} className="relative z-10 h-full w-full" role="img" aria-label="Interactive world map with tactical signal hotspots" />
         ) : (
-          <div className="w-full h-full relative flex items-center justify-center">
-            <img 
-              src="/assets/city_wireframe.png" 
-              alt="Grid View" 
-              className="w-full h-full object-cover opacity-60 mix-blend-screen" 
-            />
+          <div className="relative flex h-full w-full items-center justify-center">
+            <img src="/assets/city_wireframe.png" alt="City surveillance grid" className="h-full w-full object-cover opacity-60 mix-blend-screen" />
           </div>
         )}
+        <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-20 h-full w-full" aria-hidden="true" />
 
-        {/* Tactical Canvas Overlay */}
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-20" />
-
-        {/* Interactive Globe Rotation & Projection Control Bar */}
         {showGlobe && (
-          <div className="absolute bottom-4 left-4 z-30 flex items-center gap-2 p-1.5 rounded-xl bg-[#0a0d14]/90 border border-slate-700 shadow-2xl backdrop-blur-md text-xs font-mono">
-            {/* Play/Pause Rotation */}
-            <button
-              onClick={() => {
-                setIsRotating(!isRotating);
-                playClick();
-              }}
-              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold transition-all flex items-center gap-1.5"
-              title={isRotating ? 'Pause Rotation' : 'Rotate Globe'}
-            >
-              {isRotating ? <Pause className="w-4 h-4 text-cyan-400" /> : <Play className="w-4 h-4 text-emerald-400" />}
+          <div className="absolute bottom-3 left-3 z-30 flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 overflow-x-auto rounded-lg border border-white/10 bg-[#0a0f17]/90 p-1.5 shadow-lg backdrop-blur-md no-scrollbar">
+            <button type="button" onClick={() => { setIsRotating(!isRotating); playClick(); }} className="flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-medium text-slate-300 hover:bg-white/[0.05]" aria-label={isRotating ? 'Pause globe rotation' : 'Resume globe rotation'}>
+              {isRotating ? <Pause className="h-3.5 w-3.5 text-cyan-400" /> : <Play className="h-3.5 w-3.5 text-emerald-400" />}
               <span className="hidden sm:inline">{isRotating ? 'Pause' : 'Rotate'}</span>
             </button>
-
-            <div className="w-[1px] h-5 bg-slate-800" />
-
-            {/* Speed Multiplier */}
-            <div className="flex items-center gap-1">
-              {[0.5, 1.0, 2.0].map((speed) => (
-                <button
-                  key={speed}
-                  onClick={() => {
-                    setRotationSpeed(speed);
-                    playBeep();
-                  }}
-                  className={`px-2 py-0.5 rounded font-bold text-[10px] transition-all ${
-                    rotationSpeed === speed
-                      ? 'bg-cyan-500 text-black'
-                      : 'bg-slate-900 text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {speed}x
-                </button>
-              ))}
-            </div>
-
-            <div className="w-[1px] h-5 bg-slate-800" />
-
-            {/* 3D vs 2D Projection Mode */}
-            <button
-              onClick={() => {
-                setIs3DMode(!is3DMode);
-                playClick();
-              }}
-              className={`px-2 py-1 rounded-lg font-bold text-xs flex items-center gap-1 transition-all ${
-                is3DMode ? 'bg-cyan-950 border border-cyan-500/60 text-cyan-300' : 'bg-slate-900 text-slate-300'
-              }`}
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>{is3DMode ? '3D Projection' : '2D Mercator'}</span>
-            </button>
+            <span className="h-4 w-px bg-white/10" />
+            {[0.5, 1, 2].map((speed) => (
+              <button type="button" key={speed} onClick={() => { setRotationSpeed(speed); playBeep(); }} aria-pressed={rotationSpeed === speed} className={`rounded px-2 py-1 text-[9px] font-medium ${rotationSpeed === speed ? 'bg-cyan-400/15 text-cyan-200' : 'text-slate-600 hover:text-slate-300'}`}>{speed}×</button>
+            ))}
+            <span className="h-4 w-px bg-white/10" />
+            <button type="button" onClick={() => { setIs3DMode(!is3DMode); playClick(); }} className="shrink-0 rounded-md px-2 py-1 text-[10px] font-medium text-slate-300 hover:bg-white/[0.05]">{is3DMode ? '3D' : '2D'} view</button>
           </div>
         )}
 
-        {/* Hotspot Target Pin Briefing Popup Modal */}
         {selectedHotspot && (
-          <div className="absolute top-4 right-4 z-40 w-72 p-3.5 rounded-xl bg-[#0b0e17]/95 border border-cyan-500/60 shadow-2xl backdrop-blur-md font-mono text-xs text-slate-200 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+          <div className="absolute right-3 top-3 z-40 w-[min(280px,calc(100%-1.5rem))] rounded-xl border border-cyan-400/25 bg-[#0b111b]/95 p-4 shadow-2xl backdrop-blur-md" role="dialog" aria-label="Hotspot details">
+            <div className="mb-3 flex items-start justify-between gap-3 border-b border-white/[0.07] pb-3">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-cyan-400" />
-                <span className="font-bold text-white text-sm">{selectedHotspot.title}</span>
+                <ShieldAlert className="h-4 w-4 shrink-0 text-cyan-400" />
+                <h3 className="text-xs font-semibold text-white">{selectedHotspot.title}</h3>
               </div>
-              <button
-                onClick={() => setSelectedHotspot(null)}
-                className="text-slate-400 hover:text-white font-bold"
-              >
-                ✕
-              </button>
+              <button type="button" onClick={() => setSelectedHotspot(null)} className="text-slate-500 hover:text-white" aria-label="Close hotspot details">×</button>
             </div>
-            <div className="space-y-1.5 text-[11px]">
-              <div className="flex justify-between">
-                <span className="text-slate-400">Status:</span>
-                <span className="font-bold text-amber-400">{selectedHotspot.status}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Threat Intel:</span>
-                <span className="font-bold text-slate-100">{selectedHotspot.threat}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Sector Cmd:</span>
-                <span className="font-mono text-cyan-400">{selectedHotspot.commander}</span>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                if (onSelectTarget) onSelectTarget(selectedHotspot);
-                setSelectedHotspot(null);
-                playClick();
-              }}
-              className="mt-3 w-full py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-all shadow-md"
-            >
-              Dispatch Sector Units
-            </button>
+            <dl className="space-y-2 text-[11px]">
+              <div className="flex justify-between gap-3"><dt className="text-slate-500">Status</dt><dd className="font-medium text-amber-300">{selectedHotspot.status}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-slate-500">Intelligence</dt><dd className="text-right text-slate-200">{selectedHotspot.threat}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-slate-500">Commander</dt><dd className="font-mono text-cyan-300">{selectedHotspot.commander}</dd></div>
+            </dl>
+            <button type="button" onClick={() => { onSelectTarget?.(selectedHotspot); setSelectedHotspot(null); playClick(); }} className="mt-4 w-full rounded-lg bg-cyan-400 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-300">Open target dossier</button>
           </div>
         )}
-
       </div>
-    </div>
+    </section>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Share2, ShieldAlert, Target, Zap, Activity } from 'lucide-react';
+import { X, Share2, Target } from 'lucide-react';
 import { playClick, playBeep } from '../utils/soundEngine';
 
 export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget }) {
@@ -33,8 +33,8 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md font-sans">
-      <div className="relative w-full max-w-4xl h-[620px] rounded-2xl bg-[#090b10] border border-cyan-500/40 shadow-[0_0_50px_rgba(0,242,254,0.2)] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md font-sans" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <div className="relative w-full max-w-4xl h-[min(720px,calc(100dvh-1rem))] sm:h-[min(680px,calc(100dvh-2rem))] rounded-2xl bg-[#090b10] border border-cyan-500/40 shadow-[0_0_50px_rgba(0,242,254,0.2)] flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="graph-title">
         
         {/* Modal Header */}
         <div className="px-6 py-4 bg-[#0b0e14] border-b border-slate-800 flex items-center justify-between font-mono shrink-0">
@@ -43,7 +43,7 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
               <Share2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-white">INTELLIGENCE NETWORK GRAPH VISUALIZER</h2>
+              <h2 id="graph-title" className="text-sm sm:text-base font-extrabold text-white">INTELLIGENCE NETWORK GRAPH</h2>
               <p className="text-xs text-slate-400">Cross-Referenced Suspect Links, Frequency Spikes & Event Nodes</p>
             </div>
           </div>
@@ -53,6 +53,7 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
               playBeep();
               onClose();
             }}
+            aria-label="Close intelligence graph"
             className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-all"
           >
             <X className="w-5 h-5" />
@@ -63,7 +64,7 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
         <div className="flex-1 relative bg-[#06080c] overflow-hidden flex">
           
           {/* SVG Visualizer Canvas */}
-          <svg className="w-full h-full absolute inset-0">
+          <svg className="w-full h-full absolute inset-0" viewBox="0 0 700 520" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Interactive intelligence relationship graph">
             {/* Draw Links */}
             {links.map((link, idx) => {
               const srcNode = nodes.find(n => n.id === link.source);
@@ -106,7 +107,17 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
                   key={node.id}
                   transform={`translate(${node.x}, ${node.y})`}
                   onClick={() => handleNodeClick(node)}
-                  className="cursor-pointer group"
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleNodeClick(node);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Inspect ${node.label}, ${node.category}, risk ${node.risk}%`}
+                  aria-pressed={isSelected}
+                  className="cursor-pointer group focus:outline-none focus-visible:stroke-cyan-300"
                 >
                   {/* Outer Pulsing Aura Ring */}
                   <circle
@@ -154,7 +165,7 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
 
           {/* Node Inspector Side Sidebar */}
           {selectedNode ? (
-            <div className="absolute right-4 top-4 bottom-4 w-72 p-4 rounded-xl bg-[#0d1017]/95 border border-cyan-500/50 shadow-2xl backdrop-blur-md flex flex-col justify-between font-mono text-xs z-10 animate-in slide-in-from-right">
+            <div className="absolute inset-x-3 bottom-3 max-h-[58%] overflow-y-auto sm:inset-x-auto sm:right-4 sm:top-4 sm:bottom-4 sm:w-72 p-4 rounded-xl bg-[#0d1017]/95 border border-cyan-500/50 shadow-2xl backdrop-blur-md flex flex-col justify-between gap-4 font-mono text-xs z-10 custom-scrollbar">
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                   <span className="text-[10px] text-cyan-400 font-bold">NODE DOSSIER</span>
@@ -207,7 +218,7 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
             </div>
           ) : (
             <div className="absolute right-4 top-4 p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 font-mono text-xs pointer-events-none">
-              Click any node to inspect relationship telemetry.
+              Select any node to inspect relationship telemetry.
             </div>
           )}
 
