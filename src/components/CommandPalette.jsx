@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Eye, FileText, Globe, Palette, Search, ShieldAlert, Target, Volume2, VolumeX, X } from 'lucide-react';
+import { ArrowRight, Eye, FileText, Globe, Palette, Search, ShieldAlert, Target, Volume2, VolumeX, X, Terminal, Radio } from 'lucide-react';
 import { playClick } from '../utils/soundEngine';
 
 export default function CommandPalette({ isOpen, onClose, setActiveTab, setTheme, isMuted, onToggleMute, onSelectTarget }) {
@@ -35,42 +35,42 @@ export default function CommandPalette({ isOpen, onClose, setActiveTab, setTheme
 
   const commands = useMemo(() => [
     {
-      category: 'Navigate',
+      category: 'Navigate Operations',
       items: [
-        { id: 'nav-dashboard', label: 'Operations overview', icon: Globe, action: () => setActiveTab('dashboard') },
-        { id: 'nav-surveillance', label: 'Surveillance matrix', icon: Eye, action: () => setActiveTab('surveillance') },
-        { id: 'nav-cybercommand', label: 'Cyber command', icon: ShieldAlert, action: () => setActiveTab('cybercommand') },
-        { id: 'nav-livefeed', label: 'Live camera network', icon: Eye, action: () => setActiveTab('livefeed') },
-        { id: 'nav-alerts', label: 'Incident response and alerts', icon: ShieldAlert, action: () => setActiveTab('alerts') },
-        { id: 'nav-reporting', label: 'Intelligence reports', icon: FileText, action: () => setActiveTab('reporting') },
-        { id: 'nav-campaigns', label: 'Active campaigns', icon: Target, action: () => setActiveTab('campaigns') },
+        { id: 'nav-dashboard', label: 'Operations Overview', icon: Globe, detail: 'Main telemetry & threat overview', action: () => setActiveTab('dashboard') },
+        { id: 'nav-surveillance', label: 'Surveillance Matrix', icon: Eye, detail: 'Citywide CCTV and optical streams', action: () => setActiveTab('surveillance') },
+        { id: 'nav-cybercommand', label: 'Cyber Command (I4C)', icon: ShieldAlert, detail: 'Mule accounts & financial forensics', action: () => setActiveTab('cybercommand') },
+        { id: 'nav-livefeed', label: 'Live Camera Network & ANPR', icon: Radio, detail: 'Plate recognition & facial matching', action: () => setActiveTab('livefeed') },
+        { id: 'nav-alerts', label: 'Incident Response & Alerts', icon: ShieldAlert, detail: 'Active dispatch queue & sirens', action: () => setActiveTab('alerts') },
+        { id: 'nav-reporting', label: 'Intelligence Reports & Dossiers', icon: FileText, detail: 'Classified cases & print dossiers', action: () => setActiveTab('reporting') },
+        { id: 'nav-campaigns', label: 'Active Defense Campaigns', icon: Target, detail: 'Operation timeline & objectives', action: () => setActiveTab('campaigns') },
       ],
     },
     {
-      category: 'Target dossiers',
+      category: 'Target Dossiers',
       items: [
-        { id: 'target-alnami', label: 'Alnami · P-2204-02', icon: Target, action: () => onSelectTarget({ id: 'target-alnami', name: 'Alnami (P-2204-02)', category: 'Critical Anomaly', mugshot: '/assets/suspect_face_scan.jpg' }) },
-        { id: 'target-elena', label: 'Elena Rostova · 4783-9A', icon: Target, action: () => onSelectTarget({ id: 'target-elena', name: 'Elena Rostova (4783-9A)', category: 'Confirmed Subject', mugshot: '/assets/suspect_face_scan.jpg' }) },
-        { id: 'target-marcus', label: 'Marcus Thompson', icon: Target, action: () => onSelectTarget({ id: 'marcus', name: 'Marcus Thompson', category: 'High Threat Level', mugshot: '/assets/marcus_thompson.png' }) },
-        { id: 'target-david', label: 'David Richardson', icon: Target, action: () => onSelectTarget({ id: 'david', name: 'David Richardson', category: 'Under Surveillance', mugshot: '/assets/david_richardson.png' }) },
+        { id: 'target-alnami', label: 'Alnami · P-2204-02', icon: Target, detail: 'Critical Anomaly // Crosswalk Alpha', action: () => onSelectTarget({ id: 'target-alnami', name: 'Alnami (P-2204-02)', category: 'Critical Anomaly', mugshot: '/assets/suspect_face_scan.jpg' }) },
+        { id: 'target-elena', label: 'Elena Rostova · 4783-9A', icon: Target, detail: 'Confirmed Subject // PTZ Dome 4th', action: () => onSelectTarget({ id: 'target-elena', name: 'Elena Rostova (4783-9A)', category: 'Confirmed Subject', mugshot: '/assets/suspect_face_scan.jpg' }) },
+        { id: 'target-marcus', label: 'Marcus Thompson', icon: Target, detail: 'High Threat // Perimeter Breach', action: () => onSelectTarget({ id: 'marcus', name: 'Marcus Thompson', category: 'High Threat Level', mugshot: '/assets/marcus_thompson.png' }) },
+        { id: 'target-david', label: 'David Richardson', icon: Target, detail: 'Under Surveillance // Sector 4', action: () => onSelectTarget({ id: 'david', name: 'David Richardson', category: 'Under Surveillance', mugshot: '/assets/david_richardson.png' }) },
       ],
     },
     {
-      category: 'Preferences',
+      category: 'Preferences & Audio',
       items: [
-        { id: 'theme-cyberhud', label: 'Use sentinel green theme', icon: Palette, action: () => setTheme('cyberhud') },
-        { id: 'theme-cybercrime', label: 'Use crimson alert theme', icon: Palette, action: () => setTheme('cybercrime') },
-        { id: 'theme-cyan', label: 'Use arctic cyan theme', icon: Palette, action: () => setTheme('cyan') },
-        { id: 'theme-vintage', label: 'Use steel blue theme', icon: Palette, action: () => setTheme('vintage') },
-        { id: 'theme-amber', label: 'Use thermal amber theme', icon: Palette, action: () => setTheme('amber') },
-        { id: 'audio-toggle', label: isMuted ? 'Unmute interface sounds' : 'Mute interface sounds', icon: isMuted ? VolumeX : Volume2, action: onToggleMute },
+        { id: 'theme-cyan', label: 'Theme: Arctic Cyan (Default)', icon: Palette, detail: 'High-tech military HUD cyan', action: () => setTheme('cyan') },
+        { id: 'theme-cyberhud', label: 'Theme: Sentinel Green', icon: Palette, detail: 'Tactical phosphor radar emerald', action: () => setTheme('cyberhud') },
+        { id: 'theme-cybercrime', label: 'Theme: Crimson Alert', icon: Palette, detail: 'DEFCON 1 critical strike red', action: () => setTheme('cybercrime') },
+        { id: 'theme-vintage', label: 'Theme: Steel Blue', icon: Palette, detail: 'Classic naval command matrix', action: () => setTheme('vintage') },
+        { id: 'theme-amber', label: 'Theme: Thermal Amber', icon: Palette, detail: 'FLIR optics & night ops amber', action: () => setTheme('amber') },
+        { id: 'audio-toggle', label: isMuted ? 'Unmute Interface Audio Engine' : 'Mute Interface Audio Engine', icon: isMuted ? VolumeX : Volume2, detail: 'Synthesized cyber audio telemetry', action: onToggleMute },
       ],
     },
   ], [isMuted, onSelectTarget, onToggleMute, setActiveTab, setTheme]);
 
   const filteredCommands = commands.map((group) => ({
     ...group,
-    items: group.items.filter((item) => `${item.label} ${group.category}`.toLowerCase().includes(query.trim().toLowerCase())),
+    items: group.items.filter((item) => `${item.label} ${item.detail || ''} ${group.category}`.toLowerCase().includes(query.trim().toLowerCase())),
   })).filter((group) => group.items.length > 0);
   const flatCommands = filteredCommands.flatMap((group) => group.items);
 
@@ -107,10 +107,12 @@ export default function CommandPalette({ isOpen, onClose, setActiveTab, setTheme
   let optionIndex = -1;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-start justify-center bg-slate-950/75 px-3 pt-[8vh] backdrop-blur-sm sm:px-4 sm:pt-[12vh]" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(false); }}>
-      <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#0b1018] shadow-2xl shadow-black/70" role="dialog" aria-modal="true" aria-label="Command palette">
-        <div className="flex items-center gap-3 border-b border-white/[0.07] px-4 py-3.5">
-          <Search className="h-5 w-5 shrink-0 text-cyan-400" aria-hidden="true" />
+    <div className="fixed inset-0 z-[70] flex items-start justify-center bg-slate-950/80 px-3 pt-[8vh] backdrop-blur-md sm:px-4 sm:pt-[12vh]" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(false); }}>
+      <div className="tactical-corner w-full max-w-2xl overflow-hidden rounded-2xl border border-cyan-500/40 bg-[#080d17]/98 shadow-[0_20px_60px_rgba(0,0,0,0.95)]" role="dialog" aria-modal="true" aria-label="Command palette">
+        
+        {/* Top Search Input */}
+        <div className="flex items-center gap-3 border-b border-white/[0.08] px-4 py-3.5 bg-[#0a101f]">
+          <Terminal className="h-5 w-5 shrink-0 text-cyan-400" aria-hidden="true" />
           <label htmlFor="command-search" className="sr-only">Search commands and targets</label>
           <input
             ref={inputRef}
@@ -119,29 +121,44 @@ export default function CommandPalette({ isOpen, onClose, setActiveTab, setTheme
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleSearchKeyDown}
-            placeholder="Search views, targets, or actions…"
+            placeholder="Type directive, view name, target, or theme…"
             autoComplete="off"
             role="combobox"
             aria-expanded="true"
             aria-controls="command-results"
             aria-activedescendant={flatCommands.length ? `command-option-${activeIndex}` : undefined}
-            className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none font-mono"
           />
-          <button type="button" onClick={() => onClose(false)} className="rounded-md p-1.5 text-slate-500 hover:bg-white/[0.05] hover:text-white" aria-label="Close command palette">
+          <button type="button" onClick={() => onClose(false)} className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.08] hover:text-white transition-all" aria-label="Close command palette">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2" role="listbox" aria-label="Available commands">
+        {/* Quick Filter Directives */}
+        <div className="flex items-center gap-1.5 px-4 py-2 bg-black/40 border-b border-white/[0.05] overflow-x-auto no-scrollbar font-mono text-[10px]">
+          <span className="text-slate-500 uppercase tracking-wider mr-1">QUICK:</span>
+          {['Overview', 'Surveillance', 'Cyber', 'Alnami', 'Elena', 'Cyan', 'Alert'].map((keyword) => (
+            <button
+              key={keyword}
+              onClick={() => setQuery(keyword)}
+              className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:border-cyan-500/50 transition-all"
+            >
+              {keyword}
+            </button>
+          ))}
+        </div>
+
+        {/* Results List */}
+        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2.5 custom-scrollbar" role="listbox" aria-label="Available commands">
           {flatCommands.length === 0 ? (
             <div className="px-4 py-12 text-center">
-              <Search className="mx-auto mb-3 h-6 w-6 text-slate-700" />
-              <p className="text-sm text-slate-400">No matching commands</p>
-              <p className="mt-1 text-xs text-slate-600">Try a view, target name, or theme.</p>
+              <Search className="mx-auto mb-3 h-6 w-6 text-slate-600" />
+              <p className="text-sm text-slate-400 font-mono">No matching tactical directives</p>
+              <p className="mt-1 text-xs text-slate-600 font-mono">Try searching for a view, suspect name, or color theme.</p>
             </div>
           ) : filteredCommands.map((group) => (
-            <div key={group.category} className="mb-2 last:mb-0">
-              <p className="px-3 pb-1.5 pt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600">{group.category}</p>
+            <div key={group.category} className="mb-2.5 last:mb-0">
+              <p className="px-3 pb-1.5 pt-2 text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-cyan-400/80">{group.category}</p>
               {group.items.map((item) => {
                 optionIndex += 1;
                 const index = optionIndex;
@@ -156,11 +173,22 @@ export default function CommandPalette({ isOpen, onClose, setActiveTab, setTheme
                     aria-selected={isActive}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => executeCommand(item)}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${isActive ? 'bg-cyan-400/[0.09] text-cyan-100' : 'text-slate-300 hover:bg-white/[0.04]'}`}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition-all ${
+                      isActive 
+                        ? 'bg-cyan-500/15 border border-cyan-500/40 text-white shadow-[0_0_15px_rgba(0,242,254,0.15)]' 
+                        : 'border border-transparent text-slate-300 hover:bg-white/[0.04]'
+                    }`}
                   >
-                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-cyan-400' : 'text-slate-600'}`} aria-hidden="true" />
-                    <span className="flex-1 text-xs font-medium sm:text-sm">{item.label}</span>
-                    <ArrowRight className={`h-3.5 w-3.5 ${isActive ? 'text-cyan-500' : 'text-slate-700'}`} aria-hidden="true" />
+                    <div className={`p-2 rounded-lg shrink-0 ${isActive ? 'bg-cyan-500 text-black' : 'bg-slate-900 text-slate-400 border border-slate-800'}`}>
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs sm:text-sm font-bold truncate font-sans">{item.label}</div>
+                      {item.detail && (
+                        <div className="text-[10px] text-slate-400 truncate font-mono mt-0.5">{item.detail}</div>
+                      )}
+                    </div>
+                    <ArrowRight className={`h-4 w-4 shrink-0 transition-transform ${isActive ? 'text-cyan-400 translate-x-1' : 'text-slate-600'}`} aria-hidden="true" />
                   </button>
                 );
               })}
@@ -168,12 +196,13 @@ export default function CommandPalette({ isOpen, onClose, setActiveTab, setTheme
           ))}
         </div>
 
-        <div className="flex items-center justify-between border-t border-white/[0.07] bg-black/10 px-4 py-2.5 text-[10px] text-slate-600">
+        {/* Footer shortcuts */}
+        <div className="flex items-center justify-between border-t border-white/[0.08] bg-[#070b13] px-4 py-2.5 text-[10px] text-slate-400 font-mono">
           <div className="flex items-center gap-3">
-            <span><kbd className="mr-1 text-slate-400">↑↓</kbd> Navigate</span>
-            <span><kbd className="mr-1 text-slate-400">↵</kbd> Select</span>
+            <span><kbd className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 mr-1">↑↓</kbd> Navigate</span>
+            <span><kbd className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 mr-1">↵</kbd> Execute</span>
           </div>
-          <span><kbd className="mr-1 text-slate-400">esc</kbd> Close</span>
+          <span><kbd className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 mr-1">ESC</kbd> Close</span>
         </div>
       </div>
     </div>

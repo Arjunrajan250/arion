@@ -108,24 +108,23 @@ export default function ReportingView() {
         }}
       />
 
-      {/* Editorial Luxury Header (Reference Images 3, 4, 5) */}
-      <div className="w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#080d18] via-[#091224] to-[#080d18] border border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-xl font-mono text-xs">
-
+      {/* Header */}
+      <div className="tactical-corner w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#070e1a] via-[#091322] to-[#070e1a] border border-white/[0.09] flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-xl font-mono text-xs">
         <div className="flex items-center gap-3.5">
-          <div className="p-3 rounded-2xl bg-cyan-950/80 border border-cyan-500/50 text-cyan-400 shadow-[0_0_18px_rgba(0,242,254,0.35)]">
+          <div className="p-3 rounded-2xl bg-cyan-950/80 border border-cyan-400/40 text-cyan-400 shadow-[0_0_18px_rgba(0,242,254,0.35)]">
             <FileText className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-xl font-black font-sans tracking-wide text-white drop-shadow-md">
-                INTELLIGENCE DOSSIER & AUDIT MATRIX
+              <h1 className="font-tech text-base sm:text-xl font-black uppercase tracking-wider text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]">
+                INTELLIGENCE DOSSIER &amp; AUDIT MATRIX
               </h1>
-              <span className="px-2 py-0.5 rounded-md bg-cyan-950 border border-cyan-500/50 text-[10px] font-bold text-cyan-300">
+              <span className="px-2 py-0.5 rounded-md bg-cyan-950/90 border border-cyan-500/50 text-[10px] font-bold text-cyan-300">
                 CIA • I4C • INTERPOL RECON
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Automated Forensic Case Compilation • Evidence Telemetry & High-Resolution Reports
+            <p className="text-xs text-slate-400 mt-0.5 font-mono">
+              Automated Forensic Case Compilation • Evidence Telemetry &amp; High-Resolution Reports
             </p>
           </div>
         </div>
@@ -134,7 +133,7 @@ export default function ReportingView() {
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={handlePrintExport}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs transition-all shadow-[0_0_20px_rgba(0,242,254,0.4)] cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-tech font-bold uppercase tracking-wider text-xs transition-all shadow-[0_0_20px_rgba(0,242,254,0.4)] cursor-pointer"
           >
             <Printer className="w-4 h-4 text-slate-950" />
             <span>Print / save PDF</span>
@@ -142,7 +141,7 @@ export default function ReportingView() {
 
           <button
             onClick={handleJsonExport}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold text-xs transition-all"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-white/10 text-slate-200 font-bold text-xs transition-all"
           >
             <Download className="w-4 h-4 text-cyan-400" />
             <span>Export JSON</span>
@@ -163,32 +162,32 @@ export default function ReportingView() {
         </div>
       )}
 
-      {/* High-Impact Stat Tiles (Reference Images 4 & 5) */}
+      {/* High-Impact Stat Tiles */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 shrink-0 font-mono">
-        <div className="p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
+        <div className="tactical-corner p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
           <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">TOTAL SUSPECT DOSSIERS</div>
-          <div className="text-3xl font-black text-white mt-1">32 PROFILES</div>
+          <div className="font-tech text-2xl sm:text-3xl font-black text-white mt-1">32 PROFILES</div>
           <div className="text-[11px] text-cyan-400 mt-1 flex items-center gap-1 font-bold">
             <Crosshair className="w-3 h-3" />
             <span>3 Active Red Notices</span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
+        <div className="tactical-corner p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
           <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">FACIAL GEOMETRY CONFIDENCE</div>
-          <div className="text-3xl font-black text-emerald-400 mt-1">99.2%</div>
+          <div className="font-tech text-2xl sm:text-3xl font-black text-emerald-400 mt-1">99.2%</div>
           <div className="text-[11px] text-emerald-400 mt-1 font-bold">Zero False Positives</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
+        <div className="tactical-corner p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
           <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">I4C FINANCIAL FRAUD FROZEN</div>
-          <div className="text-3xl font-black text-amber-400 mt-1">₹42.8 LAKHS</div>
+          <div className="font-tech text-2xl sm:text-3xl font-black text-amber-400 mt-1">₹42.8 LAKHS</div>
           <div className="text-[11px] text-amber-400 mt-1 font-bold">5 Mule Chains Severed</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
+        <div className="tactical-corner p-4 rounded-2xl bg-[#080d18]/90 border border-slate-800 flex flex-col justify-between shadow-xl backdrop-blur-md">
           <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">AI POSE TELEMETRY NODES</div>
-          <div className="text-3xl font-black text-purple-400 mt-1">17 JOINTS</div>
+          <div className="font-tech text-2xl sm:text-3xl font-black text-purple-400 mt-1">17 JOINTS</div>
           <div className="text-[11px] text-purple-400 mt-1 font-bold">60 FPS Real-Time Mesh</div>
         </div>
       </div>

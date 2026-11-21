@@ -17,6 +17,7 @@ export default function CyberCommandView({ onNotify }) {
   const [selectedMule, setSelectedMule] = useState(null);
   const [isTracing, setIsTracing] = useState(false);
   const [traceLog, setTraceLog] = useState([]);
+  const [txnFilter, setTxnFilter] = useState('ALL');
 
   // Mule Accounts Dataset from Reference Image 5
   const initialMuleAccounts = [
@@ -165,17 +166,25 @@ export default function CyberCommandView({ onNotify }) {
     onNotify?.('Section 91 information request downloaded.');
   };
 
+  const filteredTransactions = transactions.filter((txn) => {
+    if (txnFilter === 'ALL') return true;
+    if (txnFilter === 'FROZEN') return txn.status === 'FROZEN';
+    if (txnFilter === 'BLOCKED') return txn.status === 'BLOCKED' || txn.status === 'ISOLATED';
+    if (txnFilter === 'FLAGGED') return txn.status === 'FLAGGED' || txn.status === 'INTERCEPTED';
+    return true;
+  });
+
   return (
-    <div className="w-full h-full flex flex-col bg-[#050913] text-slate-100 p-3 sm:p-5 gap-4 overflow-y-auto custom-scrollbar font-sans relative">
+    <div className="w-full h-full flex flex-col bg-[#04070e] text-slate-100 p-3 sm:p-5 gap-4 overflow-y-auto custom-scrollbar font-sans relative">
       
       {/* Background Command Center Atmosphere */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-20 bg-cover bg-center mix-blend-screen"
+        className="absolute inset-0 pointer-events-none opacity-15 bg-cover bg-center mix-blend-screen"
         style={{ backgroundImage: 'url("/assets/cyber_crime_command.jpg")' }}
       />
 
-      {/* Official Government Command Header (Reference Image 5) */}
-      <div className="relative z-10 w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#070e1e] via-[#091428] to-[#070e1e] border border-cyan-500/30 flex flex-wrap items-center justify-between gap-4 shadow-[0_15px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+      {/* Official Government Command Header */}
+      <div className="tactical-corner relative z-10 w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#070e1e]/95 via-[#091428]/95 to-[#070e1e]/95 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-4 shadow-[0_15px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl">
         
         {/* State Emblem & Organization Title */}
         <div className="flex items-center gap-3.5 sm:gap-4">
@@ -192,8 +201,11 @@ export default function CyberCommandView({ onNotify }) {
               <span className="px-2 py-0.5 rounded-md bg-red-950/90 border border-red-500/50 text-[10px] font-mono font-bold text-red-300 animate-pulse">
                 I4C LIVE MATRIX
               </span>
+              <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-[10px] font-mono text-cyan-300">
+                1930 HELPLINE FEED
+              </span>
             </div>
-            <h1 className="text-lg sm:text-2xl font-black font-sans tracking-wide text-white drop-shadow-md">
+            <h1 className="font-tech text-lg sm:text-2xl font-black tracking-wide text-white drop-shadow-md mt-0.5">
               INDIAN CYBER CRIME COORDINATION CENTRE
             </h1>
             <p className="text-xs text-slate-300 font-mono">
@@ -216,7 +228,7 @@ export default function CyberCommandView({ onNotify }) {
           <button
             onClick={handleFreezeAll}
             disabled={allFrozen}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-xs font-black tracking-wider uppercase transition-all shadow-xl ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-mono text-xs font-black tracking-wider uppercase transition-all shadow-xl ${
               allFrozen 
                 ? 'bg-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.5)]' 
                 : 'bg-gradient-to-r from-red-600 via-red-500 to-rose-600 text-white hover:brightness-110 shadow-[0_0_25px_rgba(239,68,68,0.5)] animate-pulse'
@@ -228,23 +240,23 @@ export default function CyberCommandView({ onNotify }) {
         </div>
       </div>
 
-      {/* Iconic High-Priority Alert Banner (Directly from Reference Image 5) */}
-      <div className="relative z-10 w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-red-950/95 via-[#1a080c] to-red-950/95 border-2 border-red-600/80 shadow-[0_0_35px_rgba(239,68,68,0.35)] flex flex-col items-center justify-center text-center gap-1.5 backdrop-blur-md">
+      {/* Iconic High-Priority Alert Banner */}
+      <div className="tactical-corner relative z-10 w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-red-950/95 via-[#1a080c] to-red-950/95 border-2 border-red-600/80 shadow-[0_0_35px_rgba(239,68,68,0.35)] flex flex-col items-center justify-center text-center gap-1.5 backdrop-blur-md">
         <div className="flex items-center gap-2 text-red-400 font-black font-mono text-sm sm:text-base tracking-widest uppercase">
           <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 animate-bounce" />
           <span>SUSPICIOUS ACTIVITY DETECTED</span>
           <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 animate-bounce" />
         </div>
 
-        <h2 className="text-base sm:text-xl font-extrabold text-white tracking-wide font-sans">
+        <h2 className="font-tech text-base sm:text-xl font-extrabold text-white tracking-wide">
           MULTIPLE ACCOUNTS RECEIVING SAME AMOUNT
         </h2>
 
-        <div className="text-3xl sm:text-5xl font-black font-mono text-red-400 tracking-wider text-glow-red my-1 animate-pulse">
+        <div className="font-tech text-3xl sm:text-5xl font-black text-red-400 tracking-wider text-glow-red my-1 animate-pulse">
           ₹50,000
         </div>
 
-        <div className="flex items-center gap-4 text-xs font-mono text-red-200/90 flex-wrap justify-center mt-1">
+        <div className="flex items-center gap-3 sm:gap-4 text-xs font-mono text-red-200/90 flex-wrap justify-center mt-1">
           <span className="px-2.5 py-0.5 rounded bg-black/60 border border-red-500/50">
             INCIDENT ID: #I4C-MULE-2026-0981
           </span>
@@ -260,23 +272,23 @@ export default function CyberCommandView({ onNotify }) {
       {/* Main Forensic Grid: Mule Network Flow Graph + Live Ticker */}
       <div className="relative z-10 grid grid-cols-1 xl:grid-cols-12 gap-4 flex-1 min-h-0">
         
-        {/* Left 8 Cols: Interactive Mule Network Flow Diagram (Reference Image 5 Visual) */}
-        <div className="xl:col-span-8 flex flex-col gap-3 rounded-2xl bg-[#070d1a]/95 border border-slate-800 p-4 shadow-2xl overflow-hidden min-h-[480px]">
+        {/* Left 8 Cols: Interactive Mule Network Flow Diagram */}
+        <div className="tactical-corner xl:col-span-8 flex flex-col gap-3 rounded-2xl bg-[#070d1a]/95 border border-slate-800 p-4 shadow-2xl overflow-hidden min-h-[480px]">
           
           <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 font-mono text-xs">
             <div className="flex items-center gap-2 text-cyan-400 font-bold">
               <Activity className="w-4 h-4" />
-              <span>LIVE MULE NETWORK CORRIDOR TOPOLOGY</span>
+              <span className="font-tech text-sm tracking-wide">LIVE MULE NETWORK CORRIDOR TOPOLOGY</span>
             </div>
-            <span className="text-slate-400">
+            <span className="text-slate-400 text-[11px]">
               5 Domestic Nodes ➔ 1 Central Threat Nexus ➔ 5 Offshore Gateways
             </span>
           </div>
 
           {/* Interactive Network Diagram */}
-          <div className="relative flex-1 w-full bg-[#040812] rounded-xl border border-slate-800/80 p-4 flex flex-col justify-between overflow-x-auto min-h-[380px]">
+          <div className="relative flex-1 w-full bg-[#040812] rounded-xl border border-slate-800/80 p-4 flex flex-col justify-between overflow-x-auto min-h-[380px] bg-cyber-grid">
             
-            <div className="grid grid-cols-3 gap-2 sm:gap-6 items-center h-full min-w-[650px]">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6 items-center h-full min-w-[680px]">
               
               {/* Column 1: Domestic Indian Bank Accounts (Left Side) */}
               <div className="flex flex-col justify-around gap-2.5 h-full">
@@ -298,7 +310,7 @@ export default function CyberCommandView({ onNotify }) {
                         playClick();
                       }}
                       aria-pressed={isSelected}
-                      className={`w-full text-left p-2 sm:p-2.5 rounded-xl border transition-all font-mono text-xs flex items-center justify-between gap-2 shadow-md ${
+                      className={`w-full text-left p-2.5 rounded-xl border transition-all font-mono text-xs flex flex-col gap-1.5 shadow-md ${
                         isFrozen 
                           ? 'bg-slate-900/90 border-slate-700 opacity-60' 
                           : isSelected
@@ -306,25 +318,35 @@ export default function CyberCommandView({ onNotify }) {
                           : 'bg-[#091122] border-slate-800 hover:border-red-500/70 hover:bg-[#0c162e]'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`p-1.5 rounded-lg shrink-0 ${isFrozen ? 'bg-slate-800 text-slate-400' : 'bg-red-950 text-red-400 border border-red-800/60'}`}>
-                          <Landmark className="w-3.5 h-3.5" />
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className={`p-1.5 rounded-lg shrink-0 ${isFrozen ? 'bg-slate-800 text-slate-400' : 'bg-red-950 text-red-400 border border-red-800/60'}`}>
+                            <Landmark className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-extrabold text-white text-[11px] truncate">{mule.accountNumber}</div>
+                            <div className="text-[9.5px] text-slate-400 truncate">{mule.bank}</div>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <div className="font-extrabold text-white text-[11px] truncate">{mule.accountNumber}</div>
-                          <div className="text-[9.5px] text-slate-400 truncate">{mule.bank}</div>
+
+                        <div className="text-right shrink-0">
+                          <div className={`font-black text-xs ${isFrozen ? 'text-slate-400 line-through' : 'text-red-400 font-mono'}`}>
+                            {mule.amount}
+                          </div>
+                          <span className={`text-[8.5px] font-extrabold px-1.5 py-0.2 rounded ${
+                            isFrozen ? 'bg-emerald-950 text-emerald-400' : 'bg-red-950 text-red-300 border border-red-700/50'
+                          }`}>
+                            {isFrozen ? 'FROZEN' : 'ACTIVE MULE'}
+                          </span>
                         </div>
                       </div>
 
-                      <div className="text-right shrink-0">
-                        <div className={`font-black text-xs ${isFrozen ? 'text-slate-400 line-through' : 'text-red-400 font-mono'}`}>
-                          {mule.amount}
-                        </div>
-                        <span className={`text-[8.5px] font-extrabold px-1.5 py-0.2 rounded ${
-                          isFrozen ? 'bg-emerald-950 text-emerald-400' : 'bg-red-950 text-red-300 border border-red-700/50'
-                        }`}>
-                          {isFrozen ? 'FROZEN' : 'ACTIVE MULE'}
-                        </span>
+                      {/* Mini Risk Severity Bar */}
+                      <div className="w-full h-1 bg-black/60 rounded-full overflow-hidden border border-slate-800/60">
+                        <div 
+                          className={`h-full ${isFrozen ? 'bg-slate-600' : 'bg-gradient-to-r from-amber-500 to-red-500'}`} 
+                          style={{ width: `${mule.riskScore}%` }} 
+                        />
                       </div>
                     </button>
                   );
@@ -338,12 +360,15 @@ export default function CyberCommandView({ onNotify }) {
                 <div className="relative flex flex-col items-center">
                   
                   {/* Outer Pulsing Threat Rings */}
-                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-red-950/40 border-2 border-red-600 flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.4)] animate-pulse">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-black/90 border border-red-500/60 flex flex-col items-center justify-center p-2 text-center">
+                  <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-red-950/40 border-2 border-red-600 flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.4)]">
+                    {/* Rotating HUD Reticle */}
+                    <div className="absolute inset-0 rounded-full border border-dashed border-red-400/40 animate-reticle-rotate pointer-events-none" />
+
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-black/90 border border-red-500/60 flex flex-col items-center justify-center p-2 text-center">
                       <div className="w-8 h-8 rounded-full bg-red-600/30 flex items-center justify-center text-red-400 mb-1">
                         <Lock className="w-4 h-4 text-red-400" />
                       </div>
-                      <span className="text-[10px] font-mono font-black text-red-300 uppercase leading-tight">
+                      <span className="text-[10.5px] font-mono font-black text-red-300 uppercase leading-tight font-tech">
                         SYNDICATE PHOENIX
                       </span>
                     </div>
@@ -354,7 +379,7 @@ export default function CyberCommandView({ onNotify }) {
                   </div>
 
                   {/* Threat Nexus Details Badge */}
-                  <div className="mt-3 p-2 rounded-xl bg-slate-950/90 border border-red-500/40 font-mono text-[10px] text-slate-300 space-y-0.5 shadow-lg max-w-[210px]">
+                  <div className="mt-3.5 p-2.5 rounded-xl bg-slate-950/90 border border-red-500/40 font-mono text-[10px] text-slate-300 space-y-0.5 shadow-lg max-w-[220px]">
                     <div className="text-red-400 font-bold">TOR EXIT: 185.220.101.42</div>
                     <div className="text-slate-400">Smurfing Split: 5 Streams</div>
                     <div className="text-amber-400 font-bold">TOTAL: ₹2,50,000 (INR)</div>
@@ -402,15 +427,15 @@ export default function CyberCommandView({ onNotify }) {
 
           {/* Forensics Log Stream (Appears when Trace is clicked) */}
           {(isTracing || traceLog.length > 0) && (
-            <div className="p-3 rounded-xl bg-black/90 border border-cyan-500/50 font-mono text-xs text-cyan-300 space-y-1 animate-in fade-in">
+            <div className="p-3 rounded-xl bg-black/95 border border-cyan-500/50 font-mono text-xs text-cyan-300 space-y-1 animate-in fade-in">
               <div className="flex items-center justify-between text-cyan-400 font-bold border-b border-cyan-900/50 pb-1">
                 <span className="flex items-center gap-1.5">
                   <Terminal className="w-3.5 h-3.5" />
-                  <span>CFCFRMS / I4C INCIDENT FORENSIC TRACE LOG</span>
+                  <span className="font-tech text-xs tracking-wide">CFCFRMS / I4C INCIDENT FORENSIC TRACE LOG</span>
                 </span>
                 <span className="text-[10px] text-emerald-400 animate-pulse">STREAM SYNCHRONIZED</span>
               </div>
-              <div className="space-y-1 max-h-24 overflow-y-auto custom-scrollbar text-[10px]">
+              <div className="space-y-1 max-h-28 overflow-y-auto custom-scrollbar text-[10px]">
                 {traceLog.map((log, idx) => (
                   <div key={idx} className="flex gap-2">
                     <span className="text-cyan-500">[{log.time}]</span>
@@ -427,11 +452,11 @@ export default function CyberCommandView({ onNotify }) {
         <div className="xl:col-span-4 flex flex-col gap-3 min-h-0">
           
           {/* Selected Mule Account Dossier Card */}
-          <div className="p-3.5 rounded-2xl bg-[#080e1c] border border-slate-800 flex flex-col gap-2.5 shadow-xl font-mono text-xs shrink-0">
+          <div className="tactical-corner p-4 rounded-2xl bg-[#080e1c] border border-slate-800 flex flex-col gap-2.5 shadow-xl font-mono text-xs shrink-0">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <div className="flex items-center gap-2 text-amber-400 font-black">
                 <Landmark className="w-4 h-4" />
-                <span>MULE ACCOUNT FORENSICS</span>
+                <span className="font-tech text-xs tracking-wider">MULE ACCOUNT FORENSICS</span>
               </div>
               <span className="text-[10px] text-cyan-400 font-bold">NPCI FAST-TRACK</span>
             </div>
@@ -443,7 +468,7 @@ export default function CyberCommandView({ onNotify }) {
                   <span className="font-bold text-white">{selectedMule.accountNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Bank & Branch:</span>
+                  <span className="text-slate-400">Bank &amp; Branch:</span>
                   <span className="font-bold text-slate-200">{selectedMule.bank} ({selectedMule.branch})</span>
                 </div>
                 <div className="flex justify-between">
@@ -460,23 +485,28 @@ export default function CyberCommandView({ onNotify }) {
                   <span className="text-slate-400">Registered Mobile:</span>
                   <span className="font-mono text-slate-300">{selectedMule.phone}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-slate-400">Risk Severity:</span>
                   <span className="font-bold text-red-400">{selectedMule.riskScore}% CRITICAL</span>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                  <div className="h-full bg-gradient-to-r from-amber-500 to-red-500" style={{ width: `${selectedMule.riskScore}%` }} />
                 </div>
 
                 <div className="pt-2 flex gap-2">
                   <button
                     onClick={() => handleFreezeAccount(selectedMule.id)}
                     disabled={frozenAccounts.includes(selectedMule.id)}
-                    className="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-1.5 disabled:bg-emerald-800"
+                    className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-all shadow-md flex items-center justify-center gap-1.5 disabled:bg-emerald-800"
                   >
                     <Ban className="w-3.5 h-3.5" />
                     <span>{frozenAccounts.includes(selectedMule.id) ? 'Account frozen' : 'Freeze Account'}</span>
                   </button>
                   <button
                     onClick={handleGenerateNotice}
-                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all border border-slate-700 flex items-center gap-1"
+                    className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all border border-slate-700 flex items-center gap-1"
                   >
                     <FileText className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Notice</span>
@@ -491,17 +521,37 @@ export default function CyberCommandView({ onNotify }) {
           </div>
 
           {/* Real-time Incident Live Transaction Stream Table */}
-          <div className="flex-1 rounded-2xl bg-[#080e1c] border border-slate-800 p-3 flex flex-col gap-2 shadow-xl font-mono text-xs min-h-0 overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-1.5 shrink-0">
+          <div className="tactical-corner flex-1 rounded-2xl bg-[#080e1c] border border-slate-800 p-3.5 flex flex-col gap-2.5 shadow-xl font-mono text-xs min-h-0 overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2 shrink-0">
               <div className="flex items-center gap-2 text-cyan-400 font-bold">
                 <Activity className="w-4 h-4" />
-                <span>LIVE FRAUD TRANSACTIONS</span>
+                <span className="font-tech text-xs tracking-wider">LIVE FRAUD TRANSACTIONS</span>
               </div>
               <span className="text-[10px] text-emerald-400 font-bold">60 SEC BUFFER</span>
             </div>
 
+            {/* Filter Chips */}
+            <div className="flex items-center gap-1.5 shrink-0 overflow-x-auto no-scrollbar py-0.5">
+              {['ALL', 'FROZEN', 'BLOCKED', 'FLAGGED'].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => {
+                    setTxnFilter(filter);
+                    playClick();
+                  }}
+                  className={`px-2.5 py-0.5 rounded text-[10px] font-bold transition-all ${
+                    txnFilter === filter
+                      ? 'bg-cyan-500 text-black font-extrabold shadow-sm'
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
             <div className="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
-              {transactions.map((txn) => (
+              {filteredTransactions.map((txn) => (
                 <div 
                   key={txn.id}
                   className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between hover:border-cyan-500/50 transition-all"
@@ -521,7 +571,7 @@ export default function CyberCommandView({ onNotify }) {
                     <div className="font-black text-red-400 text-xs">{txn.amount}</div>
                     <span className={`text-[8.5px] font-extrabold px-1.5 py-0.2 rounded ${
                       txn.status === 'FROZEN' ? 'bg-emerald-950 text-emerald-400' :
-                      txn.status === 'BLOCKED' ? 'bg-cyan-950 text-cyan-300' : 'bg-red-950 text-red-300'
+                      txn.status === 'BLOCKED' || txn.status === 'ISOLATED' ? 'bg-cyan-950 text-cyan-300' : 'bg-red-950 text-red-300'
                     }`}>
                       {txn.status}
                     </span>

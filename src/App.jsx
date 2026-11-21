@@ -259,40 +259,65 @@ export default function App() {
             collapsed={sidebarCollapsed}
             setCollapsed={setSidebarCollapsed}
             onOpenCommand={() => setIsCmdPaletteOpen(true)}
+            onOpenGraph={() => setIsGraphOpen(true)}
+            onOpenAudio={() => setIsAudioOpen(selectedAudioIntercept)}
+            onOpenDispatch={() => setIsDispatchOpen(true)}
+            onOpenPdf={() => setIsPdfOpen(true)}
+            onSelectTarget={setSelectedFelon}
           />
 
           <section className="flex min-w-0 flex-1 flex-col" aria-label="Command workspace">
-            <div className="flex min-h-[64px] shrink-0 items-center justify-between gap-3 border-b border-white/[0.06] bg-[#080c12] px-4 py-3 sm:px-5 lg:px-6">
+            <div className="flex min-h-[64px] shrink-0 items-center justify-between gap-3 border-b border-white/[0.08] bg-[#070b12] px-4 py-2.5 sm:px-5 lg:px-6">
               <div className="min-w-0">
-                <div className="mb-1 hidden items-center gap-1.5 text-[10px] text-slate-600 sm:flex">
-                  <span>{currentView.eyebrow}</span>
-                  <ChevronRight className="h-3 w-3" aria-hidden="true" />
-                  <span className="text-slate-500">{currentView.title}</span>
+                <div className="mb-0.5 hidden items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider text-slate-500 sm:flex">
+                  <span className="text-[var(--theme-accent)] font-semibold">{currentView.eyebrow}</span>
+                  <ChevronRight className="h-2.5 w-2.5 opacity-60" aria-hidden="true" />
+                  <span>{currentView.title}</span>
+                  <span className="opacity-40">•</span>
+                  <span className="opacity-75">LAT 40.7128°N / LON 74.0060°W</span>
                 </div>
-                <h1 className="truncate text-[15px] font-semibold tracking-tight text-slate-100 sm:text-base">{currentView.title}</h1>
-                <p className="mt-1 flex items-center gap-1.5 truncate text-[10px] text-slate-600">
-                  <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <h1 className="truncate font-tech text-base font-black tracking-wide text-white sm:text-lg">
+                  {currentView.title.toUpperCase()}
+                </h1>
+                <p className="mt-0.5 flex items-center gap-1.5 truncate font-mono text-[10px] text-slate-400">
+                  <MapPin className="h-3 w-3 shrink-0 text-[var(--theme-accent)]" aria-hidden="true" />
                   {currentView.location}
                 </p>
               </div>
 
               <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                <div className="hidden items-center gap-2 text-right md:flex">
-                  <Clock3 className="h-4 w-4 text-slate-600" aria-hidden="true" />
+                {/* UTC & Zulu Military Clock */}
+                <div className="hidden items-center gap-2.5 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-1.5 text-right md:flex font-mono">
+                  <Clock3 className="h-4 w-4 text-[var(--theme-accent)]" aria-hidden="true" />
                   <div>
-                    <time className="block font-mono text-xs font-medium tabular-nums text-slate-300" dateTime={currentTime.toISOString()}>
-                      {currentTime.toLocaleTimeString('en-GB', { hour12: false, timeZone: 'UTC' })} <span className="text-slate-600">UTC</span>
+                    <time className="block text-xs font-bold tabular-nums text-slate-200" dateTime={currentTime.toISOString()}>
+                      {currentTime.toLocaleTimeString('en-GB', { hour12: false, timeZone: 'UTC' })} <span className="text-[var(--theme-accent)]">ZULU</span>
                     </time>
-                    <span className="mt-0.5 block text-[9px] text-slate-600">{currentTime.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}</span>
+                    <span className="block text-[8px] uppercase tracking-wider text-slate-500">
+                      {currentTime.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                    </span>
                   </div>
                 </div>
+
+                {/* Quick Terminal Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setIsTerminalOpen(true)}
+                  className="hidden sm:flex h-9 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 font-mono text-[10px] font-semibold text-slate-400 transition-all hover:border-[var(--theme-accent)] hover:bg-[var(--theme-glow)] hover:text-white"
+                  title="Open Cyber Terminal CLI"
+                >
+                  <span className="text-[var(--theme-accent)] font-bold">&gt;_</span>
+                  <span>CLI</span>
+                </button>
+
+                {/* Critical Alerts Badge */}
                 <button
                   type="button"
                   onClick={() => setActiveTab('alerts')}
-                  className="flex h-9 items-center gap-2 rounded-lg border border-red-400/15 bg-red-400/[0.06] px-2.5 text-[10px] font-medium text-red-300 transition-colors hover:border-red-400/30 hover:bg-red-400/10 sm:px-3"
+                  className="flex h-9 items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 font-mono text-[11px] font-bold text-red-300 transition-all hover:border-red-500/50 hover:bg-red-500/20 shadow-[0_0_12px_rgba(239,68,68,0.2)]"
                 >
-                  <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span><span className="hidden sm:inline">2 </span>Critical</span>
+                  <AlertTriangle className="h-3.5 w-3.5 text-red-400 animate-pulse" aria-hidden="true" />
+                  <span>2 CRITICAL</span>
                 </button>
               </div>
             </div>

@@ -33,18 +33,20 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md font-sans" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <div className="relative w-full max-w-4xl h-[min(720px,calc(100dvh-1rem))] sm:h-[min(680px,calc(100dvh-2rem))] rounded-2xl bg-[#090b10] border border-cyan-500/40 shadow-[0_0_50px_rgba(0,242,254,0.2)] flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="graph-title">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md font-sans select-none" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <div className="tactical-corner relative w-full max-w-4xl h-[min(720px,calc(100dvh-1rem))] sm:h-[min(680px,calc(100dvh-2rem))] rounded-2xl bg-[#070b14] border border-cyan-500/40 shadow-[0_0_50px_rgba(0,242,254,0.25)] flex flex-col overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="graph-title">
         
         {/* Modal Header */}
-        <div className="px-6 py-4 bg-[#0b0e14] border-b border-slate-800 flex items-center justify-between font-mono shrink-0">
+        <div className="px-6 py-4 bg-[#0a0f1d] border-b border-white/[0.08] flex items-center justify-between font-mono shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-cyan-950 border border-cyan-500/50 text-cyan-400">
+            <div className="p-2.5 rounded-xl bg-cyan-950/80 border border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
               <Share2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 id="graph-title" className="text-sm sm:text-base font-extrabold text-white">INTELLIGENCE NETWORK GRAPH</h2>
-              <p className="text-xs text-slate-400">Cross-Referenced Suspect Links, Frequency Spikes & Event Nodes</p>
+              <h2 id="graph-title" className="font-tech text-sm sm:text-base font-extrabold uppercase tracking-wider text-white">
+                INTELLIGENCE NETWORK RELATIONSHIP GRAPH
+              </h2>
+              <p className="text-xs text-slate-400">Cross-Referenced Suspect Links, Frequency Spikes &amp; Event Nodes</p>
             </div>
           </div>
 
@@ -54,7 +56,7 @@ export default function IntelligenceGraphModal({ isOpen, onClose, onSelectTarget
               onClose();
             }}
             aria-label="Close intelligence graph"
-            className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-all"
+            className="p-1.5 rounded-lg border border-white/10 bg-white/5 text-slate-400 hover:text-white transition-all"
           >
             <X className="w-5 h-5" />
           </button>

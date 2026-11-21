@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import { Video, Eye, ChevronRight } from 'lucide-react';
+import { ChevronRight, Eye, Video } from 'lucide-react';
 import { playClick } from '../utils/soundEngine';
 
 export default function LiveFeedPanel({ onSelectFelon }) {
   const [selectedCam, setSelectedCam] = useState('NODE-01');
 
   const cameras = [
-    { id: 'NODE-01', name: 'Crosswalk Alpha', image: '/assets/cctv_crosswalk_woman.jpg', target: 'Alnami (P-2204-02)' },
-    { id: 'NODE-02', name: '4th St Junction', image: '/assets/cctv_dome_junction.jpg', target: 'Elena Rostova (4783-9A)' },
-    { id: 'NODE-03', name: 'Street Crossway', image: '/assets/cctv_street_targets.jpg', target: 'Lina & Tim' },
-    { id: 'NODE-04', name: 'I4C Command Floor', image: '/assets/cyber_crime_command.jpg', target: 'Syndicate Phoenix' }
+    { id: 'NODE-01', name: 'Crosswalk Alpha', image: '/assets/cctv_crosswalk_woman.jpg', target: 'Alnami (P-2204-02)', fps: '60 FPS', res: '4K UHD' },
+    { id: 'NODE-02', name: '4th St Junction', image: '/assets/cctv_dome_junction.jpg', target: 'Elena Rostova (4783-9A)', fps: '60 FPS', res: '4K UHD' },
+    { id: 'NODE-03', name: 'Street Crossway', image: '/assets/cctv_street_targets.jpg', target: 'Lina & Tim', fps: '30 FPS', res: '1080p' },
+    { id: 'NODE-04', name: 'I4C Command Floor', image: '/assets/cyber_crime_command.jpg', target: 'Syndicate Phoenix', fps: '60 FPS', res: '4K UHD' },
   ];
 
-  const currentCamData = cameras.find(c => c.id === selectedCam) || cameras[0];
+  const currentCamData = cameras.find((c) => c.id === selectedCam) || cameras[0];
 
   const cameraEvents = [
-    { time: '14:33:02', event: 'Biometric Alert: Alnami (98.4% Sync Desync)', level: 'CRITICAL' },
-    { time: '14:32:15', event: 'Optical Match: Elena Rostova (4783-9A Confirmed)', level: 'HIGH' },
-    { time: '14:31:02', event: 'Plate Recognized: DL-01-AB-9012 (Black SUV)', level: 'HIGH' },
-    { time: '14:28:44', event: 'Pose Keypoints Estimated: 17 Joint Mesh Tracked', level: 'INFO' },
+    { time: '14:33:02', event: 'Biometric Alert: Alnami (98.4% Desync)', level: 'CRITICAL' },
+    { time: '14:32:15', event: 'Optical Match: Elena Rostova Confirmed', level: 'HIGH' },
+    { time: '14:31:02', event: 'Plate Match: DL-01-AB-9012 (Black SUV)', level: 'HIGH' },
+    { time: '14:28:44', event: 'Pose Keypoints: 17 Joint Mesh Tracked', level: 'INFO' },
   ];
 
   const felons = [
@@ -43,8 +43,8 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       currentCharges: ['Biometric Desynchronization', 'Unauthorized Movement In Crosswalk'],
       convictions: [
         { title: 'Surveillance Evasion (2024)', duration: 'Parole Active' },
-        { title: 'Cybernetics Tampering (2022)', duration: '18 months probation' }
-      ]
+        { title: 'Cybernetics Tampering (2022)', duration: '18 months probation' },
+      ],
     },
     {
       id: 'target-1',
@@ -66,8 +66,8 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       marks: 'Scar below right collarbone',
       currentCharges: ['Corporate Espionage', 'Encrypted Comm Breach'],
       convictions: [
-        { title: 'Intelligence Breach (2021)', duration: 'Sentenced 4 years' }
-      ]
+        { title: 'Intelligence Breach (2021)', duration: 'Sentenced 4 years' },
+      ],
     },
     {
       id: 'target-2',
@@ -90,8 +90,8 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       currentCharges: ['Armed Robbery', 'Aggravated Assault'],
       convictions: [
         { title: 'Grand Theft Auto (2019)', duration: '3 years served' },
-        { title: 'Robbery (2016)', duration: '4 years served' }
-      ]
+        { title: 'Robbery (2016)', duration: '4 years served' },
+      ],
     },
     {
       id: 'target-3',
@@ -114,8 +114,8 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       currentCharges: ['Armed Robbery', 'Assault with Deadly Weapon'],
       convictions: [
         { title: 'Armed Robbery (2018)', duration: '5 years served' },
-        { title: 'Burglary (2015)', duration: '2 years served' }
-      ]
+        { title: 'Burglary (2015)', duration: '2 years served' },
+      ],
     },
     {
       id: 'target-4',
@@ -137,87 +137,97 @@ export default function LiveFeedPanel({ onSelectFelon }) {
       marks: 'Burn scar on right hand',
       currentCharges: ['Armed Robbery', 'Assault'],
       convictions: [
-        { title: 'Assault (2020)', duration: '2 years served' }
-      ]
-    }
+        { title: 'Assault (2020)', duration: '2 years served' },
+      ],
+    },
   ];
 
   return (
-    <div className="flex h-auto min-h-[300px] w-full shrink-0 select-none flex-col gap-3 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#080c12] p-3 font-sans shadow-xl shadow-black/10 custom-scrollbar lg:h-full lg:w-[272px] xl:w-[300px]">
-
+    <aside className="flex h-auto min-h-[300px] w-full shrink-0 select-none flex-col gap-3 overflow-y-auto rounded-xl border border-white/[0.08] bg-[#070b12] p-3 font-sans shadow-xl shadow-black/20 custom-scrollbar lg:h-full lg:w-[280px] xl:w-[310px]">
       {/* Camera Selection Switcher Bar */}
-      <div className="flex shrink-0 items-center justify-between gap-1 rounded-lg border border-white/[0.07] bg-black/20 p-1 font-mono text-[9px]">
+      <div className="flex shrink-0 items-center justify-between gap-1 rounded-xl border border-white/[0.07] bg-black/40 p-1 font-mono text-[9px]">
         {cameras.map((cam) => (
           <button
             key={cam.id}
+            type="button"
             onClick={() => {
               setSelectedCam(cam.id);
               playClick();
             }}
-            className={`px-2 py-1 rounded-lg font-bold transition-all ${
+            className={`flex-1 rounded-lg py-1 font-bold transition-all text-center ${
               selectedCam === cam.id
-                ? 'bg-cyan-400/[0.13] text-cyan-200'
-                : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-200'
+                ? 'bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 shadow-sm'
+                : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300'
             }`}
           >
-            {cam.id}
+            {cam.id.replace('NODE-', 'N-')}
           </button>
         ))}
       </div>
 
       {/* CCTV Video Feed Window with Real Image */}
-      <div className="relative aspect-video shrink-0 overflow-hidden rounded-lg border border-white/[0.09] bg-slate-950 shadow-lg">
+      <div className="tactical-corner relative aspect-video shrink-0 overflow-hidden rounded-xl border border-white/[0.09] bg-slate-950 shadow-lg">
         <img
           src={currentCamData.image}
           alt={currentCamData.name}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
         />
 
-        {/* Live Indicator */}
-        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/85 border border-slate-800 font-mono text-[9px] font-bold text-red-400 flex items-center gap-1.5 shadow">
-          <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-          <span>LIVE • {currentCamData.id}</span>
+        {/* Live Indicator Banner */}
+        <div className="absolute left-2 top-2 flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-black/85 px-2 py-0.5 font-mono text-[9px] font-bold text-red-400 backdrop-blur-md">
+          <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
+          <span>REC ● {currentCamData.id}</span>
+        </div>
+
+        {/* Camera Resolution / Frame Rate Ticker */}
+        <div className="absolute right-2 top-2 rounded border border-white/10 bg-black/80 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-cyan-300 backdrop-blur-sm">
+          {currentCamData.res} · {currentCamData.fps}
         </div>
 
         {/* Real-time Facial Tracking Box */}
-        <div className="absolute top-[28%] left-[43%] w-14 h-16 border-2 border-cyan-400 rounded-sm shadow-[0_0_18px_rgba(0,242,254,0.7)] animate-pulse flex flex-col justify-between p-0.5 pointer-events-none">
+        <div className="pointer-events-none absolute left-[43%] top-[28%] flex h-16 w-14 flex-col justify-between rounded-sm border-2 border-cyan-400 p-0.5 shadow-[0_0_18px_rgba(0,242,254,0.7)] animate-pulse">
           <div className="flex justify-between">
-            <div className="w-1.5 h-1.5 border-t-2 border-l-2 border-cyan-300" />
-            <div className="w-1.5 h-1.5 border-t-2 border-r-2 border-cyan-300" />
+            <div className="h-1.5 w-1.5 border-l-2 border-t-2 border-cyan-300" />
+            <div className="h-1.5 w-1.5 border-r-2 border-t-2 border-cyan-300" />
           </div>
-          <span className="text-[7.5px] font-mono text-cyan-300 bg-black/80 px-0.5 rounded self-center">
+          <span className="self-center rounded bg-black/80 px-0.5 font-mono text-[7.5px] font-bold text-cyan-300">
             LOCK
           </span>
           <div className="flex justify-between">
-            <div className="w-1.5 h-1.5 border-b-2 border-l-2 border-cyan-300" />
-            <div className="w-1.5 h-1.5 border-b-2 border-r-2 border-cyan-300" />
+            <div className="h-1.5 w-1.5 border-b-2 border-l-2 border-cyan-300" />
+            <div className="h-1.5 w-1.5 border-b-2 border-r-2 border-cyan-300" />
           </div>
         </div>
 
-        {/* Target name caption */}
-        <div className="absolute bottom-1.5 inset-x-2 px-2 py-0.5 rounded bg-black/80 font-mono text-[9.5px] text-cyan-300 font-bold truncate border border-slate-800">
+        {/* Target Name Caption */}
+        <div className="absolute inset-x-2 bottom-1.5 truncate rounded-lg border border-slate-800 bg-black/85 px-2 py-1 font-mono text-[9px] font-bold text-cyan-300 backdrop-blur-sm">
           Target: {currentCamData.target}
         </div>
       </div>
 
       {/* Real-Time Camera Event Ticker Log */}
-      <div className="flex shrink-0 flex-col gap-1 rounded-lg border border-white/[0.07] bg-[#0b1119] p-3 font-mono text-[10px]">
-        <div className="flex items-center justify-between text-cyan-400 font-bold border-b border-slate-800 pb-1">
+      <div className="flex shrink-0 flex-col gap-1 rounded-xl border border-white/[0.07] bg-[#090d16] p-2.5 font-mono text-[10px]">
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-1.5 text-cyan-400 font-bold">
           <div className="flex items-center gap-1.5">
-            <Eye className="w-3.5 h-3.5" />
-            <span>REAL-TIME BIOMETRIC LOGS</span>
+            <Eye className="h-3.5 w-3.5" />
+            <span className="font-tech text-xs tracking-wider">BIOMETRIC OPTICAL LOG</span>
           </div>
-          <span className="text-[9px] text-emerald-400 font-bold">RADAR-SYNC</span>
+          <span className="font-mono text-[8px] font-bold text-emerald-400">ACTIVE</span>
         </div>
 
-        <div className="space-y-1 max-h-20 overflow-y-auto pr-1 custom-scrollbar">
+        <div className="max-h-20 space-y-1 overflow-y-auto pr-1 custom-scrollbar">
           {cameraEvents.map((ev, i) => (
-            <div key={i} className="flex items-center justify-between text-[9.5px]">
-              <span className="text-slate-500 font-mono">{ev.time}</span>
-              <span className={`font-bold truncate pl-1 ${
-                ev.level === 'CRITICAL' ? 'text-red-400' :
-                ev.level === 'HIGH' ? 'text-amber-400' : 'text-slate-300'
-              }`}>
+            <div key={i} className="flex items-center justify-between text-[9px]">
+              <span className="font-mono text-slate-500">{ev.time}</span>
+              <span
+                className={`truncate pl-1 font-semibold ${
+                  ev.level === 'CRITICAL'
+                    ? 'text-red-400'
+                    : ev.level === 'HIGH'
+                    ? 'text-amber-400'
+                    : 'text-slate-300'
+                }`}
+              >
                 {ev.event}
               </span>
             </div>
@@ -225,69 +235,68 @@ export default function LiveFeedPanel({ onSelectFelon }) {
         </div>
       </div>
 
-      {/* Suspects & Felons List Container - Scrollable */}
-      <div className="flex min-h-[260px] flex-1 flex-col gap-2 overflow-hidden rounded-lg border border-white/[0.07] bg-[#0b1119] p-3">
-
+      {/* Suspects & Felons List Container */}
+      <div className="flex min-h-[260px] flex-1 flex-col gap-2 overflow-hidden rounded-xl border border-white/[0.07] bg-[#090d16] p-2.5">
         {/* Section Header */}
-        <div className="flex items-center justify-between shrink-0">
+        <div className="flex shrink-0 items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1 rounded bg-cyan-950 text-cyan-400 border border-cyan-500/40 shrink-0">
-              <Video className="w-3.5 h-3.5" />
+            <div className="rounded-lg border border-cyan-500/30 bg-cyan-950/60 p-1 text-cyan-400 shrink-0">
+              <Video className="h-3.5 w-3.5" />
             </div>
-            <span className="text-xs font-bold text-slate-200 tracking-tight font-sans">
-              Detected Targets in Sector
+            <span className="font-tech text-xs font-bold uppercase tracking-wider text-slate-200">
+              Sector Targets
             </span>
           </div>
-          <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/50">
+          <span className="rounded-md border border-amber-500/30 bg-amber-950/50 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-300">
             {felons.length} PROFILES
           </span>
         </div>
 
         {/* Scrollable Felons List */}
-        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 pr-1 custom-scrollbar">
+        <div className="flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar">
           {felons.map((felon) => (
             <button
               type="button"
               key={felon.id}
               onClick={() => {
                 playClick();
-                if (onSelectFelon) onSelectFelon(felon);
+                onSelectFelon?.(felon);
               }}
-              className="w-full text-left p-2 rounded-xl bg-[#0b101e] border border-slate-800 flex gap-2.5 items-center hover:border-cyan-400 hover:bg-[#0e162a] transition-all group shadow-sm"
+              className="tactical-corner group flex w-full items-center gap-2.5 rounded-xl border border-white/[0.06] bg-black/30 p-2 text-left transition-all hover:border-[var(--theme-accent)] hover:bg-black/60 shadow-sm"
             >
               {/* Mugshot Image */}
-              <div className="w-12 h-14 rounded-lg overflow-hidden border border-slate-700 bg-slate-950 shrink-0">
+              <div className="relative h-12 w-11 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-950">
                 <img
                   src={felon.mugshot}
                   alt={felon.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  className="h-full w-full object-cover transition-transform group-hover:scale-105"
                 />
               </div>
 
               {/* Suspect Meta */}
-              <div className="flex flex-col gap-0.5 min-w-0 flex-1 font-mono">
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5 font-mono">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-slate-100 text-xs truncate group-hover:text-cyan-300 transition-colors">
+                  <span className="truncate font-tech text-xs font-bold text-slate-100 group-hover:text-cyan-300 transition-colors">
                     {felon.name}
                   </span>
-                  <span className="px-1.5 py-0.2 text-[8px] font-bold rounded bg-red-950 text-red-400 border border-red-700/50">
+                  <span className="rounded bg-red-950/80 px-1 py-0.2 font-mono text-[8px] font-bold text-red-400 border border-red-700/50">
                     {felon.threat}
                   </span>
                 </div>
 
-                <div className="text-[9px] text-slate-400">
-                  {felon.detectedAt}
+                <div className="text-[9px] text-slate-500 truncate">
+                  {felon.location}
                 </div>
 
                 {/* Offenses Pills */}
-                <div className="flex items-center gap-1 flex-wrap pt-0.5">
-                  <span className="px-1 py-0.2 text-[8px] font-bold rounded bg-cyan-950 text-cyan-300 border border-cyan-800/50">
+                <div className="flex items-center gap-1 pt-0.5 flex-wrap">
+                  <span className="rounded bg-cyan-950/80 px-1 py-0.2 text-[8px] font-bold text-cyan-300 border border-cyan-800/50">
                     {felon.matchPct}
                   </span>
-                  {felon.charges.slice(0, 2).map((ch, idx) => (
+                  {felon.charges.slice(0, 1).map((ch, idx) => (
                     <span
                       key={idx}
-                      className="px-1 py-0.2 text-[8px] font-bold rounded bg-red-950/80 text-red-300 border border-red-800/40 truncate max-w-[120px]"
+                      className="truncate max-w-[100px] rounded bg-white/5 px-1 py-0.2 text-[8px] font-medium text-slate-400 border border-white/5"
                     >
                       {ch}
                     </span>
@@ -295,13 +304,11 @@ export default function LiveFeedPanel({ onSelectFelon }) {
                 </div>
               </div>
 
-              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-cyan-400 transition-colors shrink-0" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-slate-600 transition-colors group-hover:text-[var(--theme-accent)]" />
             </button>
           ))}
         </div>
-
       </div>
-
-    </div>
+    </aside>
   );
 }

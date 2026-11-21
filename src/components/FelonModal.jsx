@@ -8,7 +8,7 @@ export default function FelonModal({ felon, onClose }) {
   const [activeTargetId, setActiveTargetId] = useState(felon?.id || 'target-makarov');
   const [actionNotice, setActionNotice] = useState(null);
 
-  // CIA Most Wanted / Modern Warfare Dossier Targets Dataset (Reference Images 1 & 2)
+  // CIA Most Wanted / Modern Warfare Dossier Targets Dataset
   const targets = {
     'target-makarov': {
       id: 'target-makarov',
@@ -194,36 +194,39 @@ export default function FelonModal({ felon, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-2xl animate-in fade-in font-sans" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
 
-      {/* Main CIA Most Wanted Window Frame (Reference Images 1 & 2) */}
-      <div className="relative w-full max-w-5xl max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] rounded-2xl bg-[#070b14]/95 border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,0.98)] flex flex-col overflow-hidden text-slate-200" role="dialog" aria-modal="true" aria-labelledby="dossier-title">
+      {/* Main CIA Most Wanted Window Frame */}
+      <div className="tactical-corner relative w-full max-w-5xl max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] rounded-2xl bg-[#070b14]/98 border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,0.98)] flex flex-col overflow-hidden text-slate-200" role="dialog" aria-modal="true" aria-labelledby="dossier-title">
 
         {/* Subtle Ambient Radial Glow */}
         <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-red-600/10 blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-cyan-600/10 blur-[100px] pointer-events-none" />
 
-        {/* Top Header: CIA Most Wanted / Dossier Classified (Reference Image 2) */}
-        <div className="px-4 sm:px-6 py-3 bg-[#0a0f1d] border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0 font-mono text-xs">
+        {/* Top Header: CIA Most Wanted / Dossier Classified */}
+        <div className="px-4 sm:px-6 py-3.5 bg-[#0a0f1d] border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0 font-mono text-xs">
 
           <div className="flex items-center gap-3">
-            <div className="px-2.5 py-1 rounded bg-amber-950/80 border border-amber-600/60 text-amber-400 font-black tracking-wider uppercase flex items-center gap-1.5 shadow-sm">
+            <div className="px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-600/60 text-amber-400 font-black tracking-wider uppercase flex items-center gap-1.5 shadow-sm">
               <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-              <span>CIA MOST WANTED</span>
+              <span className="font-tech text-xs tracking-wider">CIA MOST WANTED</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span id="dossier-title" className="font-bold text-white text-xs sm:text-sm">
+              <span id="dossier-title" className="font-tech font-bold text-white text-xs sm:text-sm">
                 {activeTarget.name}
               </span>
               <span className="px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-700 font-extrabold text-[10px]">
                 {activeTarget.fileNumber}
               </span>
+              <span className="hidden sm:inline-block px-2 py-0.5 rounded bg-black/60 border border-slate-700 text-slate-400 text-[9px] uppercase tracking-widest font-mono">
+                TOP SECRET // NOFORN
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Clearance Status Badge */}
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
-              <span className="text-[10px] text-slate-400 uppercase">CIA DATABASE:</span>
+              <span className="text-[10px] text-slate-400 uppercase">CIA MAINFRAME:</span>
               <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                 ONLINE
@@ -237,9 +240,9 @@ export default function FelonModal({ felon, onClose }) {
                 onClose();
               }}
               aria-label="Close dossier"
-              className="p-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-all"
+              className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-all"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -256,14 +259,14 @@ export default function FelonModal({ felon, onClose }) {
                 setActiveTargetId(t.id);
                 playClick();
               }}
-              className={`px-3 py-1 rounded-lg font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap flex items-center gap-1.5 text-xs ${
                 activeTarget.id === t.id
                   ? 'bg-red-950/90 border border-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.4)]'
                   : 'bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${activeTarget.id === t.id ? 'bg-red-400 animate-ping' : 'bg-slate-600'}`} />
-              <span>{t.name}</span>
+              <span className="font-tech text-xs">{t.name}</span>
             </button>
           ))}
         </div>
@@ -279,13 +282,13 @@ export default function FelonModal({ felon, onClose }) {
           </div>
         )}
 
-        {/* Content Body: 3-Column Tactical Dossier Grid (Reference Images 1 & 2) */}
+        {/* Content Body: 3-Column Tactical Dossier Grid */}
         <div className="flex-1 p-4 sm:p-6 overflow-y-auto custom-scrollbar grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-0">
 
           {/* Column 1: Video Surveillance Inset, Portrait & Hazard Warning (5 Cols) */}
           <div className="lg:col-span-5 flex flex-col gap-3.5">
 
-            {/* Split Media Box: CCTV Footage Inset + Main Biometric Portrait (Image 2) */}
+            {/* Split Media Box: CCTV Footage Inset + Main Biometric Portrait */}
             <div className="grid grid-cols-2 gap-2.5">
 
               {/* CCTV Incident Playback Inset */}
@@ -316,7 +319,9 @@ export default function FelonModal({ felon, onClose }) {
                     className="w-full h-full object-cover filter contrast-110"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-center text-[10px] text-slate-500">NO VERIFIED<br />PORTRAIT</div>
+                  <div className="flex h-full w-full items-center justify-center text-center text-[10px] text-slate-500">
+                    NO VERIFIED<br />PORTRAIT
+                  </div>
                 )}
 
                 {/* Biometric Target Face Crosshair Overlay */}
@@ -333,41 +338,41 @@ export default function FelonModal({ felon, onClose }) {
 
             </div>
 
-            {/* Identification Meta Block (Reference Image 1) */}
-            <div className="p-3 rounded-xl bg-[#090e1c] border border-slate-800 font-mono text-xs space-y-1.5 shadow-md">
-              <div className="flex justify-between items-center border-b border-slate-800/80 pb-1">
+            {/* Identification Meta Block */}
+            <div className="p-3.5 rounded-xl bg-[#090e1c] border border-slate-800 font-mono text-xs space-y-2 shadow-md">
+              <div className="flex justify-between items-center border-b border-slate-800/80 pb-1.5">
                 <span className="text-slate-400 text-[11px]">CODENAME:</span>
-                <span className="font-black text-amber-400 tracking-wider text-xs">{activeTarget.codename}</span>
+                <span className="font-tech font-black text-amber-400 tracking-wider text-xs">{activeTarget.codename}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-slate-800/80 pb-1">
+              <div className="flex justify-between items-center border-b border-slate-800/80 pb-1.5">
                 <span className="text-slate-400 text-[11px]">NAME:</span>
-                <span className="font-extrabold text-white text-xs">{activeTarget.name}</span>
+                <span className="font-tech font-extrabold text-white text-xs">{activeTarget.name}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-400 text-[11px]">LOCATION:</span>
-                <span className="font-bold text-red-400 text-[11px]">{activeTarget.location}</span>
+                <span className="font-mono font-bold text-red-400 text-[11px]">{activeTarget.location}</span>
               </div>
             </div>
 
-            {/* Glowing Crimson Hazard Box (Exact match from Reference Image 1 & 2) */}
+            {/* Glowing Crimson Hazard Box */}
             <div className="p-3 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white font-mono font-black text-center text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(239,68,68,0.5)] border border-red-400 animate-pulse">
               {activeTarget.hazardWarning}
             </div>
 
           </div>
 
-          {/* Column 2: Classified Physical Spec Sheet (4 Cols - Reference Image 1) */}
+          {/* Column 2: Classified Physical Spec Sheet (4 Cols) */}
           <div className="lg:col-span-4 flex flex-col gap-2.5">
 
-            <div className="flex items-center justify-between pb-1 border-b border-slate-800 font-mono text-xs">
+            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800 font-mono text-xs">
               <div className="flex items-center gap-1.5 text-red-400 font-black">
                 <FileText className="w-4 h-4" />
-                <span>CLASSIFIED PHYSICAL SPECS</span>
+                <span className="font-tech text-xs tracking-wider">CLASSIFIED PHYSICAL SPECS</span>
               </div>
               <span className="text-[10px] text-slate-500 font-mono">SEC-5 DEPT</span>
             </div>
 
-            {/* Physical Specs Tabular Grid (Matching Reference Image 1 Right Panel) */}
+            {/* Physical Specs Tabular Grid */}
             <div className="space-y-1 font-mono text-[11px]">
               {[
                 { label: 'AGE', value: activeTarget.age },
@@ -398,14 +403,14 @@ export default function FelonModal({ felon, onClose }) {
 
           </div>
 
-          {/* Column 3: Criminal Operations Widget & Actions (3 Cols - Reference Image 2) */}
+          {/* Column 3: Criminal Operations Widget & Actions (3 Cols) */}
           <div className="lg:col-span-3 flex flex-col gap-3 font-mono text-xs">
 
             {/* Criminal Ops Floating Card */}
-            <div className="p-3 rounded-xl bg-[#090e1c] border border-amber-600/50 shadow-xl flex flex-col gap-2">
-              <div className="flex items-center gap-1.5 text-amber-400 font-black border-b border-amber-800/50 pb-1 text-xs">
+            <div className="tactical-corner p-3.5 rounded-xl bg-[#090e1c] border border-amber-600/50 shadow-xl flex flex-col gap-2">
+              <div className="flex items-center gap-1.5 text-amber-400 font-black border-b border-amber-800/50 pb-1.5 text-xs">
                 <AlertTriangle className="w-3.5 h-3.5" />
-                <span>CRIMINAL OPS.</span>
+                <span className="font-tech text-xs tracking-wider">CRIMINAL OPERATIONS</span>
               </div>
 
               <div className="space-y-1 text-[10.5px]">
@@ -451,18 +456,18 @@ export default function FelonModal({ felon, onClose }) {
             <div className="space-y-2 mt-auto">
               <button
                 onClick={() => triggerDispatchAction('Task Force 141 Intercept')}
-                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] flex items-center justify-center gap-1.5"
               >
                 <Zap className="w-3.5 h-3.5" />
-                <span>DISPATCH STRIKE TASK FORCE</span>
+                <span className="font-tech text-xs tracking-wider">DISPATCH STRIKE TASK FORCE</span>
               </button>
 
               <button
                 onClick={() => triggerDispatchAction('Interpol Red Notice Broadcast')}
-                className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 font-bold text-xs transition-all flex items-center justify-center gap-1.5"
               >
                 <Radio className="w-3.5 h-3.5 text-cyan-400" />
-                <span>ISSUE RED NOTICE</span>
+                <span className="font-tech text-xs tracking-wider">ISSUE RED NOTICE</span>
               </button>
 
               <button

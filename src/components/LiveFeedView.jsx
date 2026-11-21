@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Video, ZoomIn, ZoomOut, Car, UserCheck } from 'lucide-react';
+import { Video, ZoomIn, ZoomOut, Car, UserCheck, Eye, Flame, Radio } from 'lucide-react';
 import { playClick, playBeep } from '../utils/soundEngine';
 
 export default function LiveFeedView({ onSelectFelon }) {
   const [activeCam, setActiveCam] = useState('NODE-01');
-  const [isThermal, setIsThermal] = useState(false);
+  const [feedMode, setFeedMode] = useState('RGB'); // 'RGB', 'THERMAL', 'NVG'
   const [zoomLevel, setZoomLevel] = useState(100);
 
   const cameras = [
@@ -15,7 +15,9 @@ export default function LiveFeedView({ onSelectFelon }) {
       fps: 60,
       image: '/assets/cctv_crosswalk_woman.jpg',
       target: 'Alnami (P-2204-02)',
-      threat: 'ANOMALY DETECTED'
+      threat: 'ANOMALY DETECTED',
+      latLon: '40.7128° N, 74.0060° W',
+      lux: '18.4 LUX'
     },
     {
       id: 'NODE-02',
@@ -24,7 +26,9 @@ export default function LiveFeedView({ onSelectFelon }) {
       fps: 60,
       image: '/assets/cctv_dome_junction.jpg',
       target: 'Elena Rostova (4783-9A)',
-      threat: 'SUBJECT CONFIRMED'
+      threat: 'SUBJECT CONFIRMED',
+      latLon: '40.7155° N, 74.0082° W',
+      lux: '12.1 LUX'
     },
     {
       id: 'NODE-03',
@@ -33,7 +37,9 @@ export default function LiveFeedView({ onSelectFelon }) {
       fps: 30,
       image: '/assets/cctv_street_targets.jpg',
       target: 'Multi-Target (Lina & Tim)',
-      threat: 'TRACKING ACTIVE'
+      threat: 'TRACKING ACTIVE',
+      latLon: '40.7201° N, 73.9984° W',
+      lux: '24.6 LUX'
     },
     {
       id: 'NODE-04',
@@ -42,7 +48,9 @@ export default function LiveFeedView({ onSelectFelon }) {
       fps: 60,
       image: '/assets/cyber_crime_command.jpg',
       target: 'Syndicate Phoenix-Net',
-      threat: 'ALPHA DEFENSE'
+      threat: 'ALPHA DEFENSE',
+      latLon: '28.6139° N, 77.2090° E',
+      lux: '42.0 LUX'
     },
   ];
 
@@ -54,56 +62,90 @@ export default function LiveFeedView({ onSelectFelon }) {
   ];
 
   const facialScans = [
-    { name: 'Alnami (P-2204-02)', match: '98.4%', threat: 'CRITICAL ANOMALY', time: '14:33:02', image: '/assets/suspect_face_scan.jpg' },
-    { name: 'Elena Rostova (4783-9A)', match: '96.8%', threat: 'CONFIRMED SUBJECT', time: '14:32:15', image: '/assets/suspect_face_scan.jpg' },
-    { name: 'Robert Mitchell', match: '97.1%', threat: 'HIGH THREAT', time: '14:29:08', image: '/assets/robert_mitchell.png' },
-    { name: 'Marcus Thompson', match: '95.4%', threat: 'CRITICAL', time: '14:15:30', image: '/assets/marcus_thompson.png' },
+    { name: 'Alnami (P-2204-02)', match: '98.4%', threat: 'CRITICAL ANOMALY', time: '14:33:02', image: '/assets/suspect_face_scan.jpg', confidence: 98 },
+    { name: 'Elena Rostova (4783-9A)', match: '96.8%', threat: 'CONFIRMED SUBJECT', time: '14:32:15', image: '/assets/suspect_face_scan.jpg', confidence: 96 },
+    { name: 'Robert Mitchell', match: '97.1%', threat: 'HIGH THREAT', time: '14:29:08', image: '/assets/robert_mitchell.png', confidence: 97 },
+    { name: 'Marcus Thompson', match: '95.4%', threat: 'CRITICAL', time: '14:15:30', image: '/assets/marcus_thompson.png', confidence: 95 },
   ];
 
   const activeCamData = cameras.find(c => c.id === activeCam) || cameras[0];
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#05070c] text-slate-100 p-3 sm:p-4 gap-3.5 overflow-y-auto custom-scrollbar font-sans select-none">
+    <div className="w-full h-full flex flex-col bg-[#04070c] text-slate-100 p-3 sm:p-4 gap-3.5 overflow-y-auto custom-scrollbar font-sans select-none">
 
       {/* Top Header Control Bar */}
-      <div className="w-full p-4 rounded-2xl bg-gradient-to-r from-[#080d18] via-[#091122] to-[#080d18] border border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-md font-mono text-xs">
+      <div className="tactical-corner w-full p-4 rounded-2xl bg-gradient-to-r from-[#080d18] via-[#091122] to-[#080d18] border border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-md font-mono text-xs">
         <div className="flex items-center gap-3.5">
           <div className="p-2.5 rounded-xl bg-cyan-950/80 border border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
             <Video className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-black tracking-wide text-white font-mono text-glow-cyan">
-                LIVE OPTICAL BIOMETRICS & ANPR FEED
+              <h2 className="font-tech text-base sm:text-lg font-black tracking-wide text-white">
+                LIVE OPTICAL BIOMETRICS &amp; ANPR SURVEILLANCE
               </h2>
               <span className="px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/50 text-[10px] font-bold text-emerald-400">
                 ACTIVE 4K STREAM
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Automated Plate Recognition (ANPR) • Multi-Point Facial Geometry Matcher
+              Automated Number Plate Recognition • Multi-Point Facial Geometry Matcher
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              setIsThermal(!isThermal);
-              playClick();
-            }}
-            className={`px-3.5 py-1.5 rounded-xl border font-bold transition-all ${
-              isThermal
-                ? 'bg-amber-950/90 border-amber-500 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
-                : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
-            }`}
-          >
-            {isThermal ? '🔥 FLIR THERMAL ACTIVE' : '👁️ OPTICAL RGB'}
-          </button>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+            <button
+              onClick={() => {
+                setFeedMode('RGB');
+                playClick();
+              }}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                feedMode === 'RGB'
+                  ? 'bg-cyan-500 text-black font-extrabold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>RGB</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setFeedMode('THERMAL');
+                playClick();
+              }}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                feedMode === 'THERMAL'
+                  ? 'bg-amber-500 text-black font-extrabold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5" />
+              <span>FLIR THERMAL</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setFeedMode('NVG');
+                playClick();
+              }}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                feedMode === 'NVG'
+                  ? 'bg-emerald-500 text-black font-extrabold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Radio className="w-3.5 h-3.5" />
+              <span>NVG</span>
+            </button>
+          </div>
 
           {/* Zoom Buttons */}
-          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+          <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
             <button
               type="button"
               aria-label="Zoom out"
@@ -112,11 +154,11 @@ export default function LiveFeedView({ onSelectFelon }) {
                 setZoomLevel(prev => Math.max(100, prev - 25));
                 playBeep();
               }}
-              className="p-1 rounded text-slate-400 hover:text-white"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white disabled:opacity-40"
             >
               <ZoomOut className="w-4 h-4" />
             </button>
-            <span className="px-2 font-mono font-bold text-cyan-400">{zoomLevel}%</span>
+            <span className="px-2 font-mono font-bold text-cyan-400 text-xs">{zoomLevel}%</span>
             <button
               type="button"
               aria-label="Zoom in"
@@ -125,7 +167,7 @@ export default function LiveFeedView({ onSelectFelon }) {
                 setZoomLevel(prev => Math.min(200, prev + 25));
                 playBeep();
               }}
-              className="p-1 rounded text-slate-400 hover:text-white"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white disabled:opacity-40"
             >
               <ZoomIn className="w-4 h-4" />
             </button>
@@ -140,19 +182,43 @@ export default function LiveFeedView({ onSelectFelon }) {
         <div className="lg:col-span-8 flex flex-col gap-3 min-h-0">
 
           {/* Main Video Monitor */}
-          <div className="relative flex-1 rounded-2xl overflow-hidden border-2 border-slate-800 bg-slate-950 shadow-2xl min-h-[380px] flex items-center justify-center">
+          <div className="tactical-corner relative flex-1 rounded-2xl overflow-hidden border-2 border-slate-800 bg-slate-950 shadow-2xl min-h-[380px] flex items-center justify-center">
+            
+            {/* Viewport Image with Mode Shader */}
             <div className="absolute inset-0 transition-transform duration-300" style={{ transform: `scale(${zoomLevel / 100})` }}>
               <img
                 src={activeCamData.image}
                 alt={activeCamData.name}
-                className={`h-full w-full object-cover ${isThermal ? 'hue-rotate-90 invert brightness-125 saturate-200' : ''}`}
+                className={`h-full w-full object-cover ${
+                  feedMode === 'THERMAL' 
+                    ? 'hue-rotate-90 invert brightness-125 saturate-200' 
+                    : feedMode === 'NVG'
+                    ? 'brightness-125 contrast-125 sepia hue-rotate-[90deg] saturate-[300%]'
+                    : ''
+                }`}
                 draggable="false"
               />
 
-              {/* Target overlay scales with its source image to preserve alignment. */}
+              {/* Target Lock Reticle Overlay */}
               <div className="absolute left-[42%] top-[35%] flex h-44 w-32 flex-col justify-between rounded-lg border-2 border-cyan-400 p-1.5 shadow-[0_0_25px_rgba(0,242,254,0.7)] pointer-events-none">
-                <span className="self-start rounded bg-cyan-600 px-1.5 py-0.5 font-mono text-[9px] font-extrabold text-black">TARGET LOCK 98.4%</span>
-                <span className="self-end rounded border border-cyan-500/50 bg-black/85 px-1.5 py-0.5 font-mono text-[9px] font-bold text-cyan-300">{activeCamData.target}</span>
+                <span className="self-start rounded bg-cyan-600 px-1.5 py-0.5 font-mono text-[9px] font-extrabold text-black">
+                  TARGET LOCK 98.4%
+                </span>
+                <span className="self-end rounded border border-cyan-500/50 bg-black/85 px-1.5 py-0.5 font-mono text-[9px] font-bold text-cyan-300">
+                  {activeCamData.target}
+                </span>
+              </div>
+            </div>
+
+            {/* Corner Reticle Brackets */}
+            <div className="absolute inset-4 pointer-events-none flex flex-col justify-between">
+              <div className="flex justify-between">
+                <div className="w-4 h-4 border-t-2 border-l-2 border-cyan-400" />
+                <div className="w-4 h-4 border-t-2 border-r-2 border-cyan-400" />
+              </div>
+              <div className="flex justify-between">
+                <div className="w-4 h-4 border-b-2 border-l-2 border-cyan-400" />
+                <div className="w-4 h-4 border-b-2 border-r-2 border-cyan-400" />
               </div>
             </div>
 
@@ -163,14 +229,23 @@ export default function LiveFeedView({ onSelectFelon }) {
             </div>
 
             {/* Top Right Cam Title */}
-            <div className="absolute top-3 right-3 px-3 py-1.5 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs font-bold text-cyan-300 shadow-lg backdrop-blur-md">
-              {activeCamData.name}
+            <div className="absolute top-3 right-3 px-3 py-1.5 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs font-bold text-cyan-300 shadow-lg backdrop-blur-md flex items-center gap-2">
+              <span className="text-[10px] text-slate-400">{activeCamData.latLon}</span>
+              <span className="text-slate-600">•</span>
+              <span>{activeCamData.name}</span>
             </div>
 
             {/* Bottom Target Meta Bar */}
-            <div className="absolute bottom-3 inset-x-3 px-3 py-1.5 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs text-slate-300 flex items-center justify-between backdrop-blur-md shadow-md">
-              <span className="text-cyan-400 font-bold">{activeCamData.target}</span>
-              <span className="text-amber-400 font-extrabold">{activeCamData.threat}</span>
+            <div className="absolute bottom-3 inset-x-3 px-3.5 py-2 rounded-xl bg-black/90 border border-slate-800 font-mono text-xs text-slate-300 flex items-center justify-between backdrop-blur-md shadow-md">
+              <div className="flex items-center gap-3">
+                <span className="text-cyan-400 font-bold">{activeCamData.target}</span>
+                <span className="text-slate-500">|</span>
+                <span className="text-[10px] text-slate-400">{activeCamData.lux}</span>
+              </div>
+              <span className="text-amber-400 font-extrabold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span>{activeCamData.threat}</span>
+              </span>
             </div>
           </div>
 
@@ -193,8 +268,9 @@ export default function LiveFeedView({ onSelectFelon }) {
                 }`}
               >
                 <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
-                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/85 text-[9px] font-bold text-white border border-slate-800">
-                  {c.id}
+                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/85 text-[9px] font-bold text-white border border-slate-800 flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full ${activeCam === c.id ? 'bg-cyan-400 animate-ping' : 'bg-slate-500'}`} />
+                  <span>{c.id}</span>
                 </div>
               </button>
             ))}
@@ -206,20 +282,20 @@ export default function LiveFeedView({ onSelectFelon }) {
         <div className="lg:col-span-4 flex flex-col gap-3 min-h-0">
 
           {/* ANPR License Plate Reader */}
-          <div className="p-3.5 rounded-2xl bg-[#080d18] border border-slate-800 flex flex-col gap-2 shadow-xl font-mono text-xs shrink-0">
+          <div className="tactical-corner p-3.5 rounded-2xl bg-[#080d18] border border-slate-800 flex flex-col gap-2 shadow-xl font-mono text-xs shrink-0">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <div className="flex items-center gap-2 text-amber-400 font-black">
                 <Car className="w-4 h-4" />
-                <span>ANPR LICENSE PLATE RECOGNITION</span>
+                <span className="font-tech text-xs tracking-wider">ANPR LICENSE PLATE RECOGNITION</span>
               </div>
               <span className="text-[10px] text-emerald-400 font-bold">RADAR SYNC</span>
             </div>
 
-            <div className="space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar">
+            <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
               {licensePlates.map((p, i) => (
                 <div key={i} className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between shadow-sm">
                   <div>
-                    <div className="font-extrabold text-white text-xs">{p.plate}</div>
+                    <div className="font-extrabold text-white text-xs tracking-wider font-mono">{p.plate}</div>
                     <div className="text-[10px] text-slate-400 mt-0.5">
                       {p.vehicle} • {p.speed} • {p.time}
                     </div>
@@ -236,11 +312,11 @@ export default function LiveFeedView({ onSelectFelon }) {
           </div>
 
           {/* Biometric Facial Scanner Feed */}
-          <div className="flex-1 p-3.5 rounded-2xl bg-[#080d18] border border-slate-800 flex flex-col gap-2 shadow-xl font-mono text-xs min-h-0 overflow-hidden">
+          <div className="tactical-corner flex-1 p-3.5 rounded-2xl bg-[#080d18] border border-slate-800 flex flex-col gap-2 shadow-xl font-mono text-xs min-h-0 overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2 shrink-0">
               <div className="flex items-center gap-2 text-cyan-400 font-black">
                 <UserCheck className="w-4 h-4" />
-                <span>BIOMETRIC GEOMETRY MATCH STREAM</span>
+                <span className="font-tech text-xs tracking-wider">BIOMETRIC GEOMETRY MATCH STREAM</span>
               </div>
               <span className="text-[10px] text-cyan-400 font-bold">99.1% CONFIDENCE</span>
             </div>
@@ -256,11 +332,15 @@ export default function LiveFeedView({ onSelectFelon }) {
                   }}
                   className="w-full text-left p-2.5 rounded-xl bg-[#0d1424] border border-slate-800 flex items-center gap-3 hover:border-cyan-500 transition-all group shadow-sm"
                 >
-                  <img src={f.image} alt={f.name} className="w-11 h-13 rounded-lg object-cover border border-slate-700 shrink-0" />
+                  <img src={f.image} alt={f.name} className="w-12 h-14 rounded-lg object-cover border border-slate-700 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="font-extrabold text-white text-xs group-hover:text-cyan-300 truncate">{f.name}</div>
+                    <div className="font-extrabold text-white text-xs group-hover:text-cyan-300 truncate font-tech">{f.name}</div>
                     <div className="text-[10px] text-slate-400 mt-0.5">Match: <span className="text-cyan-400 font-bold">{f.match}</span></div>
-                    <div className="text-[9px] text-slate-500">{f.time}</div>
+                    {/* Confidence bar */}
+                    <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden mt-1">
+                      <div className="h-full bg-cyan-400" style={{ width: `${f.confidence}%` }} />
+                    </div>
+                    <div className="text-[9px] text-slate-500 mt-0.5">{f.time}</div>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[9px] font-black bg-red-950 text-red-400 border border-red-700/60 shrink-0">
                     {f.threat}

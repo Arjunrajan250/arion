@@ -133,35 +133,32 @@ export default function SurveillanceView({ onSelectFelon, onNotify }) {
 
   return (
     <div className="w-full h-full flex flex-col bg-[#05070c] text-slate-100 p-3 sm:p-5 gap-3.5 overflow-y-auto custom-scrollbar font-sans select-none relative">
-
       {/* Top Header & Tactical Controls */}
-      <div className="w-full p-4 rounded-2xl bg-gradient-to-r from-[#080d18] via-[#0a1222] to-[#080d18] border border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-xl font-mono text-xs">
-
+      <div className="tactical-corner w-full p-4 rounded-2xl bg-gradient-to-r from-[#070b14] via-[#091122] to-[#070b14] border border-white/[0.09] flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-xl font-mono text-xs">
         {/* Camera Title & Status */}
         <div className="flex items-center gap-3.5">
-          <div className="p-2.5 rounded-xl bg-cyan-950/90 border border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
+          <div className="p-2.5 rounded-xl bg-cyan-950/90 border border-cyan-400/40 text-cyan-400 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
             <Camera className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base sm:text-lg font-black tracking-wide text-white font-mono text-glow-cyan">
+              <h2 className="font-tech text-base sm:text-lg font-black tracking-wide text-white drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]">
                 BIOMETRIC CCTV SURVEILLANCE MATRIX
               </h2>
-              <span className="px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/50 text-[10px] font-bold text-emerald-400 animate-pulse">
-                AI POSE & OBJECT TRACKING ONLINE
+              <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-[10px] font-bold text-emerald-400 animate-pulse">
+                AI POSE &amp; OBJECT TRACKING ONLINE
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              4 Real-Time Optical Feeds • Automated Gait & Skeleton Mesh Analytics
+            <p className="text-xs text-slate-400 mt-0.5 font-mono">
+              4 Real-Time Optical Feeds • Automated Gait &amp; Skeleton Mesh Analytics · 3840×2160 UHD @ 60 FPS
             </p>
           </div>
         </div>
 
         {/* View Mode & Global Actions */}
         <div className="flex items-center gap-3 flex-wrap">
-
           {/* Mode Switcher */}
-          <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+          <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/[0.08]">
             <button
               onClick={() => {
                 setViewMode('focus');
@@ -169,7 +166,7 @@ export default function SurveillanceView({ onSelectFelon, onNotify }) {
               }}
               className={`px-3 py-1 rounded-lg font-bold transition-all ${
                 viewMode === 'focus'
-                  ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(0,242,254,0.4)]'
+                  ? 'bg-cyan-400 text-slate-950 shadow-[0_0_12px_rgba(0,242,254,0.4)]'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -182,7 +179,7 @@ export default function SurveillanceView({ onSelectFelon, onNotify }) {
               }}
               className={`px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
                 viewMode === 'grid'
-                  ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(0,242,254,0.4)]'
+                  ? 'bg-cyan-400 text-slate-950 shadow-[0_0_12px_rgba(0,242,254,0.4)]'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -194,7 +191,7 @@ export default function SurveillanceView({ onSelectFelon, onNotify }) {
           {/* Quick Action Buttons */}
           <button
             onClick={handleCapture}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-white/10 text-slate-200 font-bold transition-all shadow-sm"
           >
             <CameraIcon className="w-3.5 h-3.5 text-cyan-400" />
             <span>Snapshot</span>
@@ -202,12 +199,11 @@ export default function SurveillanceView({ onSelectFelon, onNotify }) {
 
           <button
             onClick={handleFlagTarget}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black tracking-wide transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black tracking-wide transition-all shadow-[0_0_15px_rgba(239,68,68,0.45)] animate-pulse"
           >
             <ShieldAlert className="w-4 h-4" />
             <span>FLAG INCIDENT</span>
           </button>
-
         </div>
       </div>
 
